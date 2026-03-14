@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: "Exo 2", sans-serif;
+  }
+  * {
+    box-sizing: border-box;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-orange hover:bg-orange2 text-white font-exo font-semibold
+           px-5 py-2.5 rounded-xl transition-all duration-200
+           active:scale-95 cursor-pointer border-none;
+  }
+  .btn-ghost {
+    @apply border border-border hover:border-orange text-muted
+           hover:text-orange bg-transparent font-exo font-medium
+           px-5 py-2.5 rounded-xl transition-all duration-200
+           active:scale-95 cursor-pointer;
+  }
+  .btn-outline {
+    @apply border border-orange text-orange bg-transparent
+           hover:bg-orange hover:text-white font-exo font-semibold
+           px-5 py-2.5 rounded-xl transition-all duration-200
+           active:scale-95 cursor-pointer;
+  }
+  .card {
+    @apply bg-navy2 border border-border rounded-2xl
+           hover:border-orange transition-all duration-200;
+  }
+  .card-static {
+    @apply bg-navy2 border border-border rounded-2xl;
+  }
+  .input-field {
+    @apply bg-navy border border-border rounded-xl px-4 py-2.5
+           text-slate-100 placeholder-dim font-exo text-sm
+           focus:outline-none focus:border-orange
+           transition-colors duration-200 w-full;
+  }
+  .select-field {
+    @apply bg-navy border border-border rounded-xl px-4 py-2.5
+           text-slate-100 font-exo text-sm
+           focus:outline-none focus:border-orange
+           transition-colors duration-200 w-full cursor-pointer;
+  }
+  .label-mono {
+    @apply font-orbitron text-xs text-muted tracking-widest uppercase;
+  }
+  .price-text {
+    @apply font-orbitron text-orange font-bold;
+  }
+  .badge-stock {
+    @apply text-xs font-semibold px-2.5 py-1 rounded-full
+           bg-green-500/10 text-green-400 border border-green-500/25;
+  }
+  .badge-low {
+    @apply text-xs font-semibold px-2.5 py-1 rounded-full
+           bg-orange/10 text-orange border border-orange/25;
+  }
+  .badge-pre {
+    @apply text-xs font-semibold px-2.5 py-1 rounded-full
+           bg-indigo-500/10 text-indigo-400 border border-indigo-500/25;
+  }
+  .skeleton {
+    @apply rounded-xl bg-navy3 overflow-hidden relative;
+    background: linear-gradient(90deg, #111d35 25%, #162040 50%, #111d35 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.8s linear infinite;
+  }
+}
