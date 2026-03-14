@@ -4,38 +4,46 @@ import (
 	"log"
 	"os"
 
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+
+	_ "github.com/BGHProjects/starbound/gateway/docs"
 	"github.com/BGHProjects/starbound/gateway/internal/db"
 	"github.com/BGHProjects/starbound/gateway/internal/handlers"
 	"github.com/BGHProjects/starbound/gateway/internal/middleware"
-	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
+// @title           Starbound API
+// @version         1.0
+// @description     API gateway for the Starbound rocket parts e-commerce platform
+// @host            localhost:8000
+// @BasePath        /api
+// @securityDefinitions.apikey BearerAuth
+// @in              header
+// @name            Authorization
+// @description     JWT token — format: Bearer <token>
 func main() {
     if err := godotenv.Load(); err != nil {
         log.Println("No .env file — reading from environment")
     }
 
-    // Initialise database
     database, err := db.NewDB()
     if err != nil {
         log.Fatalf("Failed to initialise database: %v", err)
     }
 
-    // Initialise user store
     userStore, err := db.NewUserStore()
     if err != nil {
         log.Fatalf("Failed to initialise user store: %v", err)
     }
 
-    // Initialise handlers
     productHandler := handlers.NewProductHandler(database)
     authHandler    := handlers.NewAuthHandler(userStore)
 
-    // Router
     r := gin.Default()
 
-    // CORS
     r.Use(func(c *gin.Context) {
         c.Header("Access-Control-Allow-Origin",  "*")
         c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
@@ -47,7 +55,9 @@ func main() {
         c.Next()
     })
 
-    // Health check
+    // Swagger UI — http://localhost:8000/swagger/index.html
+    r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
     r.GET("/health", func(c *gin.Context) {
         c.JSON(200, gin.H{
             "status":  "ok",
@@ -55,10 +65,8 @@ func main() {
         })
     })
 
-    // API routes
     api := r.Group("/api")
     {
-        // Auth — public routes
         auth := api.Group("/auth")
         {
             auth.POST("/register", authHandler.Register)
@@ -67,7 +75,6 @@ func main() {
             auth.GET("/me",        middleware.RequireAuth(), authHandler.Me)
         }
 
-        // Products — public routes
         products := api.Group("/products")
         {
             products.GET("",        productHandler.GetProducts)
@@ -82,6 +89,7 @@ func main() {
     }
 
     log.Printf("Starbound gateway running on :%s", port)
+    log.Printf("Swagger UI at http://localhost:%s/swagger/index.html", port)
     if err := r.Run(":" + port); err != nil {
         log.Fatal(err)
     }

@@ -48,7 +48,7 @@ type Product struct {
     ImageURL    string          `json:"image_url"    db:"image_url"`
     InStock     bool            `json:"in_stock"     db:"in_stock"`
     StockCount  int             `json:"stock_count"  db:"stock_count"`
-    Attributes  json.RawMessage `json:"attributes"   db:"attributes"`
+    Attributes  json.RawMessage `json:"attributes"   db:"attributes"    swaggertype:"object"`
     CreatedAt   string          `json:"created_at"   db:"created_at"`
     UpdatedAt   string          `json:"updated_at"   db:"updated_at"`
 }

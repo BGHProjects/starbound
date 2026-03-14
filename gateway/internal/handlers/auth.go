@@ -17,13 +17,22 @@ func NewAuthHandler(users *db.UserStore) *AuthHandler {
     return &AuthHandler{users: users}
 }
 
-// Register handles POST /api/auth/register
+// Register godoc
+// @Summary      Register a new account
+// @Description  Creates a new user account and returns a JWT token
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        body  body      models.RegisterRequest  true  "Registration details"
+// @Success      201   {object}  models.AuthResponse
+// @Failure      400   {object}  map[string]string
+// @Failure      409   {object}  map[string]string
+// @Failure      500   {object}  map[string]string
+// @Router       /auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
     var req models.RegisterRequest
     if err := c.ShouldBindJSON(&req); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{
-            "error": err.Error(),
-        })
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
 
@@ -60,19 +69,27 @@ func (h *AuthHandler) Register(c *gin.Context) {
     })
 }
 
-// Login handles POST /api/auth/login
+// Login godoc
+// @Summary      Login
+// @Description  Authenticates a user and returns a JWT token
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        body  body      models.LoginRequest  true  "Login credentials"
+// @Success      200   {object}  models.AuthResponse
+// @Failure      400   {object}  map[string]string
+// @Failure      401   {object}  map[string]string
+// @Failure      500   {object}  map[string]string
+// @Router       /auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
     var req models.LoginRequest
     if err := c.ShouldBindJSON(&req); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{
-            "error": err.Error(),
-        })
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
 
     user := h.users.FindByEmail(req.Email)
     if user == nil || !db.CheckPassword(req.Password, user.HashedPassword) {
-        // Same error for both cases — don't reveal whether email exists
         c.JSON(http.StatusUnauthorized, gin.H{
             "error": "invalid email or password",
         })
@@ -98,25 +115,33 @@ func (h *AuthHandler) Login(c *gin.Context) {
     })
 }
 
-// Logout handles POST /api/auth/logout
-// JWT is stateless so logout is handled client-side by discarding the token.
-// This endpoint exists so the frontend has a consistent API to call.
+// Logout godoc
+// @Summary      Logout
+// @Description  Stateless logout — client should discard the token
+// @Tags         auth
+// @Produce      json
+// @Success      200  {object}  map[string]string
+// @Router       /auth/logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {
-    c.JSON(http.StatusOK, gin.H{
-        "message": "logged out successfully",
-    })
+    c.JSON(http.StatusOK, gin.H{"message": "logged out successfully"})
 }
 
-// Me handles GET /api/auth/me
-// Returns the current user from the JWT claims set by RequireAuth middleware
+// Me godoc
+// @Summary      Get current user
+// @Description  Returns the authenticated user's profile from the JWT
+// @Tags         auth
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200  {object}  models.UserPublic
+// @Failure      401  {object}  map[string]string
+// @Failure      404  {object}  map[string]string
+// @Router       /auth/me [get]
 func (h *AuthHandler) Me(c *gin.Context) {
     userID := c.GetString("user_id")
 
     user := h.users.FindByID(userID)
     if user == nil {
-        c.JSON(http.StatusNotFound, gin.H{
-            "error": "user not found",
-        })
+        c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
         return
     }
 

@@ -1,0 +1,391 @@
+basePath: /api
+definitions:
+  models.AuthResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/models.UserPublic'
+    type: object
+  models.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  models.Product:
+    properties:
+      attributes:
+        type: object
+      created_at:
+        type: string
+      group:
+        $ref: '#/definitions/models.ProductGroup'
+      id:
+        type: string
+      image_url:
+        type: string
+      in_stock:
+        type: boolean
+      name:
+        type: string
+      price:
+        type: number
+      stock_count:
+        type: integer
+      type:
+        $ref: '#/definitions/models.ProductType'
+      updated_at:
+        type: string
+    type: object
+  models.ProductGroup:
+    enum:
+    - structural
+    - guidance
+    - payload
+    - propulsion
+    type: string
+    x-enum-varnames:
+    - GroupStructural
+    - GroupGuidance
+    - GroupPayload
+    - GroupPropulsion
+  models.ProductListItem:
+    properties:
+      group:
+        $ref: '#/definitions/models.ProductGroup'
+      id:
+        type: string
+      image_url:
+        type: string
+      in_stock:
+        type: boolean
+      name:
+        type: string
+      price:
+        type: number
+      stock_count:
+        type: integer
+      type:
+        $ref: '#/definitions/models.ProductType'
+    type: object
+  models.ProductListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.ProductListItem'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
+  models.ProductType:
+    enum:
+    - rocket_frame
+    - panels_fuselage
+    - control_fins
+    - flight_computer
+    - nav_sensors
+    - control_actuation
+    - telemetry
+    - nose_cone
+    - crewed_cabin
+    - cargo_module
+    - liquid_engine
+    - propellant_tank
+    - rocket_nozzle
+    type: string
+    x-enum-varnames:
+    - TypeRocketFrame
+    - TypePanelsFuselage
+    - TypeControlFins
+    - TypeFlightComputer
+    - TypeNavSensors
+    - TypeControlActuation
+    - TypeTelemetry
+    - TypeNoseCone
+    - TypeCrewedCabin
+    - TypeCargoModule
+    - TypeLiquidEngine
+    - TypePropellantTank
+    - TypeRocketNozzle
+  models.RegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        minLength: 2
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  models.UserPublic:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: API gateway for the Starbound rocket parts e-commerce platform
+  title: Starbound API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user and returns a JWT token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      description: Stateless logout — client should discard the token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Logout
+      tags:
+      - auth
+  /auth/me:
+    get:
+      description: Returns the authenticated user's profile from the JWT
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserPublic'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get current user
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user account and returns a JWT token
+      parameters:
+      - description: Registration details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new account
+      tags:
+      - auth
+  /products:
+    get:
+      description: Returns a paginated list of products, optionally filtered by group,
+        type, or search term
+      parameters:
+      - description: Product group
+        enum:
+        - structural
+        - guidance
+        - payload
+        - propulsion
+        in: query
+        name: group
+        type: string
+      - description: Product type
+        enum:
+        - rocket_frame
+        - panels_fuselage
+        - control_fins
+        - flight_computer
+        - nav_sensors
+        - control_actuation
+        - telemetry
+        - nose_cone
+        - crewed_cabin
+        - cargo_module
+        - liquid_engine
+        - propellant_tank
+        - rocket_nozzle
+        in: query
+        name: type
+        type: string
+      - description: Search by name
+        in: query
+        name: search
+        type: string
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Items per page (default 20, max 100)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ProductListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List products
+      tags:
+      - products
+  /products/{id}:
+    get:
+      description: Returns a single product with full attributes by ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Product'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get a single product
+      tags:
+      - products
+  /products/groups:
+    get:
+      description: Returns the full list of product groups and their types
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get product taxonomy
+      tags:
+      - products
+securityDefinitions:
+  BearerAuth:
+    description: 'JWT token — format: Bearer <token>'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
