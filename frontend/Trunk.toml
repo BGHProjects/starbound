@@ -5,9 +5,8 @@ public_url = "/"
 
 [[hooks]]
 stage = "pre_build"
-command = "npx"
+command = "node_modules/.bin/tailwindcss.cmd"
 command_arguments = [
-    "tailwindcss",
     "-i", "./styles/input.css",
     "-o", "./styles/tailwind.css",
     "--minify"
