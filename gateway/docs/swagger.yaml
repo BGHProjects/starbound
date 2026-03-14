@@ -7,6 +7,32 @@ definitions:
       user:
         $ref: '#/definitions/models.UserPublic'
     type: object
+  models.CreateOrderItem:
+    properties:
+      product_id:
+        type: string
+      quantity:
+        minimum: 1
+        type: integer
+    required:
+    - product_id
+    - quantity
+    type: object
+  models.CreateOrderRequest:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.CreateOrderItem'
+        minItems: 1
+        type: array
+      notes:
+        type: string
+      shipping_address:
+        $ref: '#/definitions/models.ShippingAddress'
+    required:
+    - items
+    - shipping_address
+    type: object
   models.LoginRequest:
     properties:
       email:
@@ -17,6 +43,87 @@ definitions:
     - email
     - password
     type: object
+  models.Order:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/models.OrderItem'
+        type: array
+      notes:
+        type: string
+      shipping_address:
+        $ref: '#/definitions/models.ShippingAddress'
+      shipping_cost:
+        type: number
+      status:
+        $ref: '#/definitions/models.OrderStatus'
+      subtotal:
+        type: number
+      total:
+        type: number
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.OrderItem:
+    properties:
+      line_total:
+        type: number
+      product_id:
+        type: string
+      product_name:
+        type: string
+      product_type:
+        type: string
+      quantity:
+        type: integer
+      unit_price:
+        type: number
+    type: object
+  models.OrderListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.Order'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
+  models.OrderStatus:
+    enum:
+    - pending
+    - payment_processing
+    - payment_failed
+    - confirmed
+    - preparing
+    - shipped
+    - in_transit
+    - delivered
+    - cancelled
+    - refund_pending
+    - refunded
+    type: string
+    x-enum-varnames:
+    - StatusPending
+    - StatusPaymentProcessing
+    - StatusPaymentFailed
+    - StatusConfirmed
+    - StatusPreparing
+    - StatusShipped
+    - StatusInTransit
+    - StatusDelivered
+    - StatusCancelled
+    - StatusRefundPending
+    - StatusRefunded
   models.Product:
     properties:
       attributes:
@@ -130,6 +237,30 @@ definitions:
     - email
     - name
     - password
+    type: object
+  models.ShippingAddress:
+    properties:
+      address_line_1:
+        type: string
+      address_line_2:
+        type: string
+      city:
+        type: string
+      country:
+        type: string
+      facility_name:
+        type: string
+      postal_code:
+        type: string
+      site_code:
+        type: string
+    required:
+    - address_line_1
+    - city
+    - country
+    - facility_name
+    - postal_code
+    - site_code
     type: object
   models.UserPublic:
     properties:
@@ -271,6 +402,173 @@ paths:
       summary: Register a new account
       tags:
       - auth
+  /orders:
+    get:
+      description: Returns a paginated list of all orders for the authenticated user
+      parameters:
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Items per page (default 20)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OrderListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List current user's orders
+      tags:
+      - orders
+    post:
+      consumes:
+      - application/json
+      description: Creates a new order for the authenticated user
+      parameters:
+      - description: Order details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Order'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new order
+      tags:
+      - orders
+  /orders/{id}:
+    get:
+      description: Returns a single order by ID — user can only access their own orders
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Order'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get a single order
+      tags:
+      - orders
+  /orders/{id}/cancel:
+    put:
+      description: Cancels a pending order — only works for cancellable statuses
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Order'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Cancel an order
+      tags:
+      - orders
   /products:
     get:
       description: Returns a paginated list of products, optionally filtered by group,

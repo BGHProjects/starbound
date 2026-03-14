@@ -29,18 +29,30 @@ func main() {
         log.Println("No .env file — reading from environment")
     }
 
+    log.Println("Initialising product database...")
     database, err := db.NewDB()
     if err != nil {
         log.Fatalf("Failed to initialise database: %v", err)
     }
+    log.Println("Product database OK")
 
+    log.Println("Initialising user store...")
     userStore, err := db.NewUserStore()
     if err != nil {
         log.Fatalf("Failed to initialise user store: %v", err)
     }
+    log.Println("User store OK")
+
+    log.Println("Initialising order store...")
+    orderStore, err := db.NewOrderStore()
+    if err != nil {
+        log.Fatalf("Failed to initialise order store: %v", err)
+    }
+    log.Println("Order store OK")
 
     productHandler := handlers.NewProductHandler(database)
     authHandler    := handlers.NewAuthHandler(userStore)
+    orderHandler   := handlers.NewOrderHandler(orderStore, database)
 
     r := gin.Default()
 
@@ -55,7 +67,6 @@ func main() {
         c.Next()
     })
 
-    // Swagger UI — http://localhost:8000/swagger/index.html
     r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
     r.GET("/health", func(c *gin.Context) {
@@ -80,6 +91,14 @@ func main() {
             products.GET("",        productHandler.GetProducts)
             products.GET("/groups", productHandler.GetProductGroups)
             products.GET("/:id",    productHandler.GetProductByID)
+        }
+
+        orders := api.Group("/orders", middleware.RequireAuth())
+        {
+            orders.GET("",            orderHandler.GetOrders)
+            orders.POST("",           orderHandler.CreateOrder)
+            orders.GET("/:id",        orderHandler.GetOrderByID)
+            orders.PUT("/:id/cancel", orderHandler.CancelOrder)
         }
     }
 

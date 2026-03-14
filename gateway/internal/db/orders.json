@@ -1,0 +1,67 @@
+[
+  {
+    "id": "57eca797-22d5-47aa-95d5-91a00c478f7d",
+    "user_id": "24666759-b455-419a-b59b-5e69c9f1f346",
+    "status": "pending",
+    "items": [
+      {
+        "product_id": "le-001",
+        "product_name": "Merlin 1D Vacuum",
+        "product_type": "liquid_engine",
+        "quantity": 1,
+        "unit_price": 4200000,
+        "line_total": 4200000
+      },
+      {
+        "product_id": "nc-001",
+        "product_name": "Dragon V2 Nose Cone",
+        "product_type": "nose_cone",
+        "quantity": 2,
+        "unit_price": 320000,
+        "line_total": 640000
+      }
+    ],
+    "shipping_address": {
+      "facility_name": "Kennedy Space Center",
+      "site_code": "LC-39A",
+      "address_line_1": "Space Commerce Way",
+      "city": "Merritt Island",
+      "country": "US",
+      "postal_code": "32953"
+    },
+    "subtotal": 4840000,
+    "shipping_cost": 2500,
+    "total": 4842500,
+    "notes": "Handle with care",
+    "created_at": "2026-03-14T12:52:00Z",
+    "updated_at": "2026-03-14T12:52:00Z"
+  },
+  {
+    "id": "7a7bb81a-a592-40dd-a9ba-dfbefb2730d8",
+    "user_id": "24666759-b455-419a-b59b-5e69c9f1f346",
+    "status": "cancelled",
+    "items": [
+      {
+        "product_id": "le-001",
+        "product_name": "Merlin 1D Vacuum",
+        "product_type": "liquid_engine",
+        "quantity": 1,
+        "unit_price": 4200000,
+        "line_total": 4200000
+      }
+    ],
+    "shipping_address": {
+      "facility_name": "Kennedy Space Center",
+      "site_code": "LC-39A",
+      "address_line_1": "Space Commerce Way",
+      "city": "Merritt Island",
+      "country": "US",
+      "postal_code": "32953"
+    },
+    "subtotal": 4200000,
+    "shipping_cost": 2500,
+    "total": 4202500,
+    "created_at": "2026-03-14T12:52:12Z",
+    "updated_at": "2026-03-14T12:52:35Z"
+  }
+]
