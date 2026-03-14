@@ -1,6 +1,6 @@
 # Starbound 🚀
 
-A full-stack e-commerce platform for purchasing rocket components.
+A full-stack e-commerce platform for purchasing rocket components, built as a portfolio project to demonstrate proficiency across a modern, polyglot microservices architecture.
 
 Starbound allows users to browse a catalog of rocket parts, create accounts, complete purchases, query an AI assistant for product recommendations, and submit photo-verified refund requests — all from a native desktop application or the browser.
 
@@ -29,11 +29,11 @@ Users can browse a catalog of rocket components organised by category (propulsio
 
 ### 👤 Accounts & authentication
 
-Users can sign up, log in, and manage their account. Authentication is handled via Supabase Auth with JWT tokens validated at the API gateway on every protected request.
+Users can sign up, log in, and manage their account. Authentication is handled via JWT tokens issued by the Go gateway and validated on every protected request.
 
 ### 🤖 RAG chatbot
 
-A retrieval-augmented generation chatbot powered by LangChain and OpenAI allows users to query the product catalog in natural language. Example queries include _"build me a rocket under $1 million"_, _"what components can withstand 400°C"_, or _"what can I add to increase my rocket's top speed"_. The chatbot retrieves answers from internal product documentation stored in a Chroma vector database.
+A retrieval-augmented generation chatbot powered by LangChain and OpenAI allows users to query the product catalog in natural language. Example queries include "build me a rocket under $1 million", "what components can withstand 400°C", or "what can I add to increase my rocket's top speed". The chatbot retrieves answers from internal product documentation stored in a Chroma vector database.
 
 ### 📄 CV refund service
 
@@ -94,6 +94,7 @@ starbound/
 | Go             | 1.23.1  | API gateway                    |
 | Gin            | latest  | Go HTTP router                 |
 | golang-jwt     | v5      | JWT authentication             |
+| Swaggo         | latest  | OpenAPI/Swagger doc generation |
 | Python         | 3.11.5  | RAG and CV services            |
 | FastAPI        | latest  | Python web framework           |
 | LangChain      | latest  | RAG chain orchestration        |
@@ -145,6 +146,7 @@ cd gateway
 go run cmd/main.go
 # Running at http://localhost:8000
 # Health check: http://localhost:8000/health
+# Swagger UI:   http://localhost:8000/swagger/index.html
 ```
 
 ### 2 — RAG service
@@ -180,7 +182,7 @@ trunk serve
 ### 5 — Desktop (Electron)
 
 ```bash
-# Requires the frontend trunk serve to be running first
+# Requires trunk serve to be running first
 cd electron
 NODE_ENV=development npm start
 ```
@@ -200,7 +202,7 @@ docker-compose up --build
 
 ```bash
 cd gateway
-go test ./...
+go test ./... -v
 ```
 
 ### Python unit tests
@@ -233,16 +235,32 @@ npx playwright show-report
 
 ---
 
+## API documentation
+
+The Go gateway serves a live interactive Swagger UI when running locally:
+
+```
+http://localhost:8000/swagger/index.html
+```
+
+All endpoints, request bodies, response schemas, and authentication requirements are documented there. You can execute requests directly from the UI — click **Authorize** in the top right and paste a JWT token from a login response to test protected endpoints.
+
+---
+
 ## Status
 
-| Service     | Status         |
-| ----------- | -------------- |
-| Go gateway  | 🟡 In progress |
-| Frontend    | 🟡 In progress |
-| RAG service | 🔴 Not started |
-| CV service  | 🔴 Not started |
-| Electron    | 🔴 Not started |
-| E2E tests   | 🔴 Not started |
+| Service                   | Status         |
+| ------------------------- | -------------- |
+| Go gateway — products     | ✅ Complete    |
+| Go gateway — auth         | ✅ Complete    |
+| Go gateway — orders       | ✅ Complete    |
+| Go gateway — chat proxy   | 🔴 Not started |
+| Go gateway — refund proxy | 🔴 Not started |
+| Frontend                  | 🔴 Not started |
+| RAG service               | 🔴 Not started |
+| CV service                | 🔴 Not started |
+| Electron wrapper          | 🔴 Not started |
+| E2E tests                 | 🔴 Not started |
 
 ---
 
