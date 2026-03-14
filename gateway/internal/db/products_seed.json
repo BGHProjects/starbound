@@ -1,0 +1,125 @@
+[
+  {
+    "id": "rf-001",
+    "name": "Falcon Heavy Frame Mk1",
+    "group": "structural",
+    "type": "rocket_frame",
+    "price": 2400000.0,
+    "image_url": "/images/products/rf-001.png",
+    "in_stock": true,
+    "stock_count": 4,
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z",
+    "attributes": {
+      "structural_material": "Carbon Fibre Composite",
+      "mass_kg": 4200,
+      "height_m": 70.0,
+      "diameter_m": 3.66,
+      "max_payload_capacity_kg": 63800,
+      "flexural_stiffness_nm2": 9800000,
+      "torsional_strength_nm": 4200000
+    }
+  },
+  {
+    "id": "rf-002",
+    "name": "Atlas V Frame",
+    "group": "structural",
+    "type": "rocket_frame",
+    "price": 1800000.0,
+    "image_url": "/images/products/rf-002.png",
+    "in_stock": true,
+    "stock_count": 2,
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z",
+    "attributes": {
+      "structural_material": "Aluminium Alloy 2024-T3",
+      "mass_kg": 3200,
+      "height_m": 58.3,
+      "diameter_m": 3.81,
+      "max_payload_capacity_kg": 18850,
+      "flexural_stiffness_nm2": 7200000,
+      "torsional_strength_nm": 3100000
+    }
+  },
+  {
+    "id": "le-001",
+    "name": "Merlin 1D Vacuum",
+    "group": "propulsion",
+    "type": "liquid_engine",
+    "price": 4200000.0,
+    "image_url": "/images/products/le-001.png",
+    "in_stock": true,
+    "stock_count": 8,
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z",
+    "attributes": {
+      "max_thrust_kn": 934,
+      "specific_impulse_s": 348,
+      "burn_time_s": 397,
+      "chamber_pressure_bar": 97,
+      "weight_kg": 470,
+      "gimbal_range_deg": 5.0
+    }
+  },
+  {
+    "id": "le-002",
+    "name": "RS-25 Space Shuttle Main Engine",
+    "group": "propulsion",
+    "type": "liquid_engine",
+    "price": 40000000.0,
+    "image_url": "/images/products/le-002.png",
+    "in_stock": false,
+    "stock_count": 0,
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z",
+    "attributes": {
+      "max_thrust_kn": 2279,
+      "specific_impulse_s": 452,
+      "burn_time_s": 480,
+      "chamber_pressure_bar": 207,
+      "weight_kg": 3177,
+      "gimbal_range_deg": 8.5
+    }
+  },
+  {
+    "id": "nc-001",
+    "name": "Dragon V2 Nose Cone",
+    "group": "payload",
+    "type": "nose_cone",
+    "price": 320000.0,
+    "image_url": "/images/products/nc-001.png",
+    "in_stock": true,
+    "stock_count": 6,
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z",
+    "attributes": {
+      "material": "PICA-X Ablative Composite",
+      "length_m": 3.9,
+      "base_diameter_m": 3.66,
+      "mass_kg": 840,
+      "thermal_resistance": "1650°C sustained",
+      "payload_compatibility": "Dragon capsule, custom payloads up to 3.5m dia",
+      "reusability_cycles": 10
+    }
+  },
+  {
+    "id": "fc-001",
+    "name": "Dragonfly Avionics Suite",
+    "group": "guidance",
+    "type": "flight_computer",
+    "price": 780000.0,
+    "image_url": "/images/products/fc-001.png",
+    "in_stock": true,
+    "stock_count": 12,
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z",
+    "attributes": {
+      "processor_speed_ghz": "3.2 GHz quad-core rad-hardened",
+      "memory_capacity_gb": "64GB ECC",
+      "redundancy_level": "Triple modular redundancy",
+      "power_consumption_w": 85.0,
+      "operating_temp_range_c": "-55°C to +125°C",
+      "weight_kg": 4.2
+    }
+  }
+]
