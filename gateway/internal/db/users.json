@@ -1,0 +1,9 @@
+[
+  {
+    "id": "24666759-b455-419a-b59b-5e69c9f1f346",
+    "email": "test@starbound.com",
+    "name": "Test User",
+    "hashed_password": "$2a$10$d.CIAZFXPbxSp6RyC9otX.DSY5nQhglhLcrZxyxt7s.P42TYYZ/pG",
+    "created_at": "2026-03-14T12:21:15Z"
+  }
+]
