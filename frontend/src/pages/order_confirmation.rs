@@ -111,7 +111,7 @@ pub fn order_confirmation(props: &OrderConfirmationProps) -> Html {
                     <div class="space-y-4 mb-6">
                         { for o.items.iter().map(|item| html! {
                             <div class="flex items-center gap-4 py-3 border-b border-border last:border-0">
-                                <div class="w-12 h-12 bg-navy3 border border-border rounded-xl
+                                <div class="w-24 h-24 bg-navy3 border border-border rounded-xl
                                             flex items-center justify-center flex-shrink-0">
                                     <span class="font-orbitron text-xs font-bold text-border">
                                         { &item.product_type.to_uppercase()[..4.min(item.product_type.len())] }
