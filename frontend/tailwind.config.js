@@ -18,6 +18,9 @@ module.exports = {
         orbitron: ["Orbitron", "monospace"],
         exo: ["Exo 2", "sans-serif"],
       },
+      transitionDuration: {
+        250: "250ms",
+      },
       keyframes: {
         "fade-up": {
           "0%": { opacity: "0", transform: "translateY(20px)" },
@@ -53,13 +56,11 @@ module.exports = {
         },
       },
       animation: {
-        "fade-up": "fade-up 0.45s cubic-bezier(0.4,0,0.2,1) forwards",
-        "fade-in": "fade-in 0.3s ease forwards",
-        "slide-in-right":
-          "slide-in-right 0.35s cubic-bezier(0.4,0,0.2,1) forwards",
-        "slide-in-left":
-          "slide-in-left 0.35s cubic-bezier(0.4,0,0.2,1) forwards",
-        "scale-in": "scale-in 0.25s cubic-bezier(0.4,0,0.2,1) forwards",
+        "fade-up": "fade-up 0.45s cubic-bezier(0.4,0,0.2,1) both",
+        "fade-in": "fade-in 0.3s ease both",
+        "slide-in-right": "slide-in-right 0.35s cubic-bezier(0.4,0,0.2,1) both",
+        "slide-in-left": "slide-in-left 0.35s cubic-bezier(0.4,0,0.2,1) both",
+        "scale-in": "scale-in 0.25s cubic-bezier(0.4,0,0.2,1) both",
         "pulse-glow": "pulse-glow 2.5s ease-in-out infinite",
         float: "float 3s ease-in-out infinite",
         shimmer: "shimmer 1.8s linear infinite",
