@@ -65,9 +65,15 @@ enum GridPhase {
     Entering,
 }
 
+#[derive(Properties, PartialEq)]
+pub struct CatalogProps {
+    pub initial_group: Option<String>,
+}
+
 #[function_component(Catalog)]
-pub fn catalog() -> Html {
-    let selected_group = use_state(|| Option::<String>::None);
+pub fn catalog(props: &CatalogProps) -> Html {
+    let initial_group = props.initial_group.clone();
+    let selected_group = use_state(move || initial_group);
     let selected_type  = use_state(|| Option::<String>::None);
     let in_stock_only  = use_state(|| false);
     let min_price      = use_state(|| 0u32);

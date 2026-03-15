@@ -17,33 +17,6 @@ struct Category {
     icon:        &'static str,
 }
 
-const CATEGORIES: &[Category] = &[
-    Category {
-        group:       "propulsion",
-        label:       "Propulsion",
-        description: "Engines, tanks and nozzles",
-        icon:        "🔥",
-    },
-    Category {
-        group:       "structural",
-        label:       "Structural",
-        description: "Frames, panels and fins",
-        icon:        "🔩",
-    },
-    Category {
-        group:       "guidance",
-        label:       "Guidance",
-        description: "Computers, sensors and telemetry",
-        icon:        "📡",
-    },
-    Category {
-        group:       "payload",
-        label:       "Payload",
-        description: "Nose cones, cabins and cargo",
-        icon:        "🛸",
-    },
-];
-
 // ─── Component ───────────────────────────────────────────────────
 
 #[function_component(Landing)]
@@ -151,30 +124,6 @@ pub fn landing() -> Html {
                                 {"Create Account"}
                             </button>
                         </Link<Route>>
-                    </div>
-                </div>
-            </section>
-
-            // ── Category pills ───────────────────────────────────
-            <section class="px-6 pb-12">
-                <div class="max-w-6xl mx-auto">
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        { for CATEGORIES.iter().map(|cat| {
-                            let group = cat.group.to_string();
-                            html! {
-                                <Link<Route> to={Route::Catalog}>
-                                    <div class="card p-5 cursor-pointer group text-center">
-                                        <div class="text-3xl mb-3">{ cat.icon }</div>
-                                        <h3 class="font-orbitron text-sm font-bold text-white mb-1 group-hover:text-orange transition-colors">
-                                            { cat.label }
-                                        </h3>
-                                        <p class="font-exo text-xs text-muted">
-                                            { cat.description }
-                                        </p>
-                                    </div>
-                                </Link<Route>>
-                            }
-                        })}
                     </div>
                 </div>
             </section>

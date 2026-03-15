@@ -4,6 +4,8 @@ use yew_router::prelude::*;
 pub enum Route {
     #[at("/")]
     Landing,
+    #[at("/catalog/:group")]
+    CatalogFiltered { group: String },
     #[at("/catalog")]
     Catalog,
     #[at("/product/:id")]
