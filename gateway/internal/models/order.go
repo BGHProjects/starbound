@@ -42,8 +42,8 @@ type OrderItem struct {
 
 // ShippingAddress holds the delivery destination
 type ShippingAddress struct {
-    FacilityName string `json:"facility_name"           binding:"required"`
-    SiteCode     string `json:"site_code"               binding:"required"`
+    FacilityName string `json:"facility_name"`
+    SiteCode     string `json:"site_code"`
     AddressLine1 string `json:"address_line_1"          binding:"required"`
     AddressLine2 string `json:"address_line_2,omitempty"`
     City         string `json:"city"                    binding:"required"`

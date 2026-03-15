@@ -63,5 +63,41 @@
     "total": 4202500,
     "created_at": "2026-03-14T12:52:12Z",
     "updated_at": "2026-03-14T12:52:35Z"
+  },
+  {
+    "id": "ec44dc46-f9c1-4f44-82cc-9f562cab8349",
+    "user_id": "9f6e00a2-ba5a-4d9f-945c-a4bcfd359bd0",
+    "status": "pending",
+    "items": [
+      {
+        "product_id": "rf-001",
+        "product_name": "Falcon Heavy Frame Mk1",
+        "product_type": "rocket_frame",
+        "quantity": 1,
+        "unit_price": 2400000,
+        "line_total": 2400000
+      },
+      {
+        "product_id": "rf-002",
+        "product_name": "Atlas V Frame",
+        "product_type": "rocket_frame",
+        "quantity": 1,
+        "unit_price": 1800000,
+        "line_total": 1800000
+      }
+    ],
+    "shipping_address": {
+      "facility_name": "",
+      "site_code": "",
+      "address_line_1": "Test Street",
+      "city": "City",
+      "country": "Austria",
+      "postal_code": "10101"
+    },
+    "subtotal": 4200000,
+    "shipping_cost": 2500,
+    "total": 4202500,
+    "created_at": "2026-03-15T11:42:32Z",
+    "updated_at": "2026-03-15T11:42:32Z"
   }
 ]
