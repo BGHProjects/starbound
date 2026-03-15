@@ -7,16 +7,6 @@ use crate::services::products::ProductService;
 use crate::types::{ProductListItem, ProductFilters};
 use crate::route::Route;
 
-// ─── Category definition ─────────────────────────────────────────
-
-#[derive(Clone, PartialEq)]
-struct Category {
-    group:       &'static str,
-    label:       &'static str,
-    description: &'static str,
-    icon:        &'static str,
-}
-
 // ─── Component ───────────────────────────────────────────────────
 
 #[function_component(Landing)]
@@ -93,12 +83,6 @@ pub fn landing() -> Html {
                 "></div>
 
                 <div class="relative max-w-4xl mx-auto animate-fade-up">
-                    <div class="inline-flex items-center gap-2 bg-orange/10 border border-orange/20 rounded-full px-4 py-1.5 mb-6">
-                        <span class="w-2 h-2 bg-orange rounded-full animate-pulse"></span>
-                        <span class="font-orbitron text-orange text-xs tracking-widest">
-                            {"ROCKET PARTS MARKETPLACE"}
-                        </span>
-                    </div>
 
                     <h1 class="font-orbitron text-5xl font-bold text-white mb-6 leading-tight">
                         {"Build Your "}
@@ -109,7 +93,7 @@ pub fn landing() -> Html {
                     </h1>
 
                     <p class="font-exo text-muted text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
-                        {"Browse thousands of aerospace-grade components — from liquid rocket engines
+                        {"Browse our astronautics-grade components — from liquid rocket engines
                           to avionics suites. Built for engineers, researchers, and visionaries."}
                     </p>
 
@@ -177,10 +161,10 @@ pub fn landing() -> Html {
             // ── Category rows ─────────────────────────────────────
             if !*loading_groups {
                 <>
-                    { category_row("Propulsion", "propulsion", &propulsion) }
-                    { category_row("Structural", "structural", &structural) }
-                    { category_row("Guidance",   "guidance",   &guidance) }
-                    { category_row("Payload",    "payload",    &payload) }
+                    { category_row("Propulsion", &propulsion) }
+                    { category_row("Structural", &structural) }
+                    { category_row("Guidance",    &guidance) }
+                    { category_row("Payload",       &payload) }
                 </>
             } else {
                 <div class="flex justify-center py-16">
@@ -197,19 +181,16 @@ pub fn landing() -> Html {
 
 // ─── Category row helper ──────────────────────────────────────────
 
-fn category_row(label: &str, group: &str, products: &[ProductListItem]) -> Html {
+fn category_row(label: &str, products: &[ProductListItem]) -> Html {
     if products.is_empty() {
         return html! {};
     }
-
-    let group = group.to_string();
 
     html! {
         <section class="px-6 pb-16">
             <div class="max-w-6xl mx-auto">
                 <div class="flex items-center justify-between mb-6">
                     <div>
-                        <p class="label-mono mb-1">{ group.clone() }</p>
                         <h2 class="font-orbitron text-xl font-bold text-white">{ label }</h2>
                     </div>
                     <Link<Route> to={Route::Catalog}>
