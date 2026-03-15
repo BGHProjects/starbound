@@ -1,5 +1,3 @@
-pub mod navbar;
-pub mod product_card;
-pub mod cart;
-pub mod modal;
-pub mod toast;
+pub mod layout;
+pub mod ui;
+pub mod product;

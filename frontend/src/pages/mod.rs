@@ -1,4 +1,14 @@
-pub mod home;
+pub mod landing;
 pub mod catalog;
+pub mod product_detail;
+pub mod compare;
+pub mod cart;
 pub mod checkout;
-pub mod account;
+pub mod order_confirmation;
+pub mod orders;
+pub mod order_detail;
+pub mod refund;
+pub mod login;
+pub mod register;
+pub mod profile;
+pub mod not_found;

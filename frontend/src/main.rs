@@ -2,38 +2,33 @@ use yew::prelude::*;
 use yew_router::prelude::*;
 
 mod components;
+mod context;
+mod hooks;
 mod pages;
+mod route;
 mod services;
 mod types;
 
-#[derive(Clone, Routable, PartialEq)]
-pub enum Route {
-    #[at("/")]
-    Home,
-    #[at("/catalog")]
-    Catalog,
-    #[at("/product/:id")]
-    Product { id: u32 },
-    #[at("/checkout")]
-    Checkout,
-    #[at("/account")]
-    Account,
-    #[not_found]
-    #[at("/404")]
-    NotFound,
-}
+use context::auth::AuthProvider;
+use context::cart::CartProvider;
+use route::Route;
 
-fn switch(routes: Route) -> Html {
-    match routes {
-        Route::Home     => html! { <pages::home::Home /> },
-        Route::Catalog  => html! { <pages::catalog::Catalog /> },
-        Route::Checkout => html! { <pages::checkout::Checkout /> },
-        Route::Account  => html! { <pages::account::Account /> },
-        _               => html! {
-            <div class="p-8 text-orange font-orbitron">
-                { "404 — Page not found" }
-            </div>
-        },
+fn switch(route: Route) -> Html {
+    match route {
+        Route::Landing                  => html! { <pages::landing::Landing /> },
+        Route::Catalog                  => html! { <pages::catalog::Catalog /> },
+        Route::ProductDetail { id }     => html! { <pages::product_detail::ProductDetail {id} /> },
+        Route::Compare { id }           => html! { <pages::compare::Compare {id} /> },
+        Route::Cart                     => html! { <pages::cart::Cart /> },
+        Route::Checkout                 => html! { <pages::checkout::Checkout /> },
+        Route::OrderConfirmation { id } => html! { <pages::order_confirmation::OrderConfirmation {id} /> },
+        Route::Orders                   => html! { <pages::orders::Orders /> },
+        Route::OrderDetail { id }       => html! { <pages::order_detail::OrderDetail {id} /> },
+        Route::Refund { order_id }      => html! { <pages::refund::Refund {order_id} /> },
+        Route::Login                    => html! { <pages::login::Login /> },
+        Route::Register                 => html! { <pages::register::Register /> },
+        Route::Profile                  => html! { <pages::profile::Profile /> },
+        Route::NotFound                 => html! { <pages::not_found::NotFound /> },
     }
 }
 
@@ -41,12 +36,16 @@ fn switch(routes: Route) -> Html {
 fn app() -> Html {
     html! {
         <BrowserRouter>
-            <div class="min-h-screen bg-navy">
-                <components::navbar::Navbar />
-                <main>
-                    <Switch<Route> render={switch} />
-                </main>
-            </div>
+            <AuthProvider>
+                <CartProvider>
+                    <div class="min-h-screen bg-navy">
+                        <components::layout::navbar::Navbar />
+                        <main>
+                            <Switch<Route> render={switch} />
+                        </main>
+                    </div>
+                </CartProvider>
+            </AuthProvider>
         </BrowserRouter>
     }
 }
