@@ -25,11 +25,19 @@ Starbound allows users to browse a catalog of rocket parts, create accounts, com
 
 ### 🛒 E-commerce catalog
 
-Users can browse a catalog of rocket components organised by category (propulsion, airframe, avionics, thermal, guidance). Each product has a detailed spec sheet, stock status, and pricing. Users can add items to a cart and complete a multi-step checkout flow, receiving a PDF receipt on order confirmation.
+Users can browse a catalog of rocket components organised by four groups — Structural, Guidance, Payload, and Propulsion — each containing multiple product types. Each product has a full spec sheet with typed attributes, stock status, and pricing. Users can filter by group, type, price range, and stock availability, add items to a cart, and complete a multi-step checkout flow receiving an order confirmation on purchase.
+
+### 🔍 Product comparison
+
+Any product can be compared side by side against similar products of the same type. The comparison page uses a vertical card layout styled after SaaS pricing pages, with numeric attributes highlighted green/red for best/worst values across the compared products.
 
 ### 👤 Accounts & authentication
 
-Users can sign up, log in, and manage their account. Authentication is handled via JWT tokens issued by the Go gateway and validated on every protected request.
+Users can register, log in, and manage their account. Authentication is handled via JWT tokens issued by the Go gateway and validated on every protected request. The profile page shows account stats, total spend, and recent order history.
+
+### 📦 Orders
+
+Authenticated users can place orders, view their full order history, inspect individual order details including shipping address and line items, and cancel orders that are still in a cancellable status.
 
 ### 🤖 RAG chatbot
 
@@ -55,30 +63,26 @@ starbound/
 │
 ├── gateway/           # Go 1.23
 │                      # API gateway — handles all requests from the frontend
-│                      # Routes to Supabase (database) and microservices
 │                      # JWT authentication middleware
+│                      # Local JSON file stores (swappable for Supabase)
 │
 ├── rag-service/       # Python 3.11 / FastAPI
 │                      # RAG chatbot microservice
 │                      # LangChain + ChromaDB + OpenAI embeddings
-│                      # Ingests product PDF documentation as vector embeddings
 │
 ├── cv-service/        # Python 3.11 / FastAPI
 │                      # Computer vision refund processing microservice
 │                      # OpenCV + Tesseract OCR + pdf2image
-│                      # Validates PDF receipts and determines refund eligibility
 │
 ├── electron/          # Electron 28 / Node 24
 │                      # Desktop application wrapper
-│                      # Serves the compiled Yew WASM bundle as a native app
 │
 ├── tests/             # Playwright (TypeScript)
-│                      # End-to-end test suite covering all user flows
-│                      # Runs against both browser and Electron targets
+│                      # End-to-end test suite
 │
 ├── docker/            # Shared Docker configuration
-├── docker-compose.yml # Orchestrates all services for local / CI runs
-└── .github/workflows/ # GitHub Actions CI — runs tests on every PR
+├── docker-compose.yml # Orchestrates all services
+└── .github/workflows/ # GitHub Actions CI
 ```
 
 ---
@@ -117,14 +121,6 @@ Each service runs independently. Open a separate terminal for each.
 
 ### Prerequisites
 
-Make sure the following are installed before starting:
-
-- [Rust](https://rustup.rs/) + `wasm32-unknown-unknown` target + Trunk
-- [Go 1.23+](https://go.dev/dl/)
-- [Python 3.11](https://www.python.org/downloads/)
-- [Node.js 20+](https://nodejs.org/)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) _(optional for local dev)_
-
 ```bash
 # Rust WASM target + Trunk (one-time setup)
 rustup target add wasm32-unknown-unknown
@@ -157,7 +153,6 @@ source venv/Scripts/activate   # Windows
 # source venv/bin/activate     # Mac / Linux
 uvicorn app.main:app --reload --port 8001
 # Running at http://localhost:8001
-# Health check: http://localhost:8001/health
 ```
 
 ### 3 — CV service
@@ -168,7 +163,6 @@ source venv/Scripts/activate   # Windows
 # source venv/bin/activate     # Mac / Linux
 uvicorn app.main:app --reload --port 8002
 # Running at http://localhost:8002
-# Health check: http://localhost:8002/health
 ```
 
 ### 4 — Frontend
@@ -190,7 +184,6 @@ NODE_ENV=development npm start
 ### Running all services with Docker
 
 ```bash
-# From the project root (requires Docker Desktop running)
 docker-compose up --build
 ```
 
@@ -208,29 +201,17 @@ go test ./... -v
 ### Python unit tests
 
 ```bash
-# RAG service
-cd rag-service
-source venv/Scripts/activate
-pytest
-
-# CV service
-cd cv-service
-source venv/Scripts/activate
-pytest
+cd rag-service && source venv/Scripts/activate && pytest
+cd cv-service  && source venv/Scripts/activate && pytest
 ```
 
 ### Playwright end-to-end tests
 
 ```bash
-# Requires all services to be running first
 cd tests
 npx playwright test
-
-# Run with UI mode (recommended for development)
-npx playwright test --ui
-
-# View the last test report
-npx playwright show-report
+npx playwright test --ui       # UI mode
+npx playwright show-report     # View last report
 ```
 
 ---
@@ -243,24 +224,36 @@ The Go gateway serves a live interactive Swagger UI when running locally:
 http://localhost:8000/swagger/index.html
 ```
 
-All endpoints, request bodies, response schemas, and authentication requirements are documented there. You can execute requests directly from the UI — click **Authorize** in the top right and paste a JWT token from a login response to test protected endpoints.
-
 ---
 
 ## Status
 
-| Service                   | Status         |
-| ------------------------- | -------------- |
-| Go gateway — products     | ✅ Complete    |
-| Go gateway — auth         | ✅ Complete    |
-| Go gateway — orders       | ✅ Complete    |
-| Go gateway — chat proxy   | 🔴 Not started |
-| Go gateway — refund proxy | 🔴 Not started |
-| Frontend                  | 🔴 Not started |
-| RAG service               | 🔴 Not started |
-| CV service                | 🔴 Not started |
-| Electron wrapper          | 🔴 Not started |
-| E2E tests                 | 🔴 Not started |
+| Area                          | Status         |
+| ----------------------------- | -------------- |
+| Go gateway — products         | ✅ Complete    |
+| Go gateway — auth             | ✅ Complete    |
+| Go gateway — orders           | ✅ Complete    |
+| Go gateway — chat proxy       | 🔴 Not started |
+| Go gateway — refund proxy     | 🔴 Not started |
+| Go gateway — Swagger docs     | ✅ Complete    |
+| Frontend — landing page       | ✅ Complete    |
+| Frontend — catalog            | ✅ Complete    |
+| Frontend — product detail     | ✅ Complete    |
+| Frontend — compare            | ✅ Complete    |
+| Frontend — cart               | ✅ Complete    |
+| Frontend — checkout           | ✅ Complete    |
+| Frontend — order confirmation | ✅ Complete    |
+| Frontend — orders list        | ✅ Complete    |
+| Frontend — order detail       | ✅ Complete    |
+| Frontend — refund             | ✅ Complete    |
+| Frontend — login / register   | ✅ Complete    |
+| Frontend — profile            | ✅ Complete    |
+| Frontend — search overlay     | 🔴 Not started |
+| Frontend — chatbot widget     | 🔴 Not started |
+| RAG service                   | 🔴 Not started |
+| CV service                    | 🔴 Not started |
+| Electron wrapper              | 🔴 Not started |
+| E2E tests                     | 🔴 Not started |
 
 ---
 

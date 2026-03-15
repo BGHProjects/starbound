@@ -8,7 +8,7 @@ The frontend is a single-page application written in Rust, compiled to WebAssemb
 
 **Rust + Yew** is an unconventional choice for a frontend — most SPAs are written in JavaScript or TypeScript. The decision here is intentional: it demonstrates Rust proficiency in a context where most developers would default to React or Vue, and it produces a highly performant WASM binary with no JavaScript runtime overhead.
 
-**Trunk** is the build tool. It compiles the Rust code to WASM, runs the Tailwind CSS pre-build hook, injects the bundle into `index.html`, and serves the result on a local dev server with hot reload. It is the Yew equivalent of Vite or webpack.
+**Trunk** is the build tool. It compiles the Rust code to WASM, runs the Tailwind CSS pre-build hook, injects the bundle into `index.html`, and serves the result on a local dev server with hot reload.
 
 **Tailwind CSS v3** handles all styling. Because Yew has no JavaScript build pipeline, Tailwind is run as a pre-build hook in `Trunk.toml` — it scans all `.rs` files for class names and generates a minified `tailwind.css` before each compilation.
 
@@ -19,82 +19,73 @@ The frontend is a single-page application written in Rust, compiled to WebAssemb
 ```
 frontend/
 ├── src/
-│   ├── main.rs                      # Entry point — mounts the App component
-│   ├── route.rs                     # Route enum — all application routes defined here
-│   ├── types.rs                     # All shared data types (structs for API shapes, cart, filters)
+│   ├── main.rs                      # Entry point — mounts App, wraps providers
+│   ├── route.rs                     # Route enum — all application routes
+│   ├── types.rs                     # All shared data types
 │   │
-│   ├── context/                     # Global state providers
-│   │   ├── mod.rs
-│   │   ├── auth.rs                  # AuthContext — current user, token, login/logout
-│   │   └── cart.rs                  # CartContext — cart items, quantities, totals
+│   ├── context/
+│   │   ├── auth.rs                  # AuthContext — user, token, login/logout
+│   │   └── cart.rs                  # CartContext — items, quantities, totals
 │   │
-│   ├── services/                    # API call layer — one file per resource
-│   │   ├── mod.rs
-│   │   ├── api.rs                   # ApiClient — shared GET/POST/PUT methods
+│   ├── services/
+│   │   ├── api.rs                   # ApiClient — GET/POST/PUT with optional auth
 │   │   ├── auth.rs                  # AuthService — login, register, me
 │   │   ├── products.rs              # ProductService — list, get, get_similar
 │   │   └── orders.rs                # OrderService — list, get, create, cancel
 │   │
-│   ├── pages/                       # One file per route — top-level page components
-│   │   ├── mod.rs
-│   │   ├── landing.rs               # / — hero, featured products, category rows
-│   │   ├── catalog.rs               # /catalog — search results with filters
-│   │   ├── product_detail.rs        # /product/:id — full product page
-│   │   ├── compare.rs               # /product/:id/compare — side-by-side comparison
-│   │   ├── cart.rs                  # /cart — cart contents and totals
-│   │   ├── checkout.rs              # /checkout — shipping and payment form
-│   │   ├── order_confirmation.rs    # /order-confirmation/:id — post-purchase screen
-│   │   ├── orders.rs                # /orders — order history list
-│   │   ├── order_detail.rs          # /orders/:id — single order detail
-│   │   ├── refund.rs                # /refund/:order_id — receipt upload and processing
+│   ├── pages/
+│   │   ├── landing.rs               # / — hero, category pills, product rows
+│   │   ├── catalog.rs               # /catalog — filters, search, product grid
+│   │   ├── product_detail.rs        # /product/:id — specs, add to cart, compare
+│   │   ├── compare.rs               # /product/:id/compare — side by side cards
+│   │   ├── cart.rs                  # /cart — items, quantities, order summary
+│   │   ├── checkout.rs              # /checkout — shipping form, payment, summary
+│   │   ├── order_confirmation.rs    # /order-confirmation/:id — post-purchase
+│   │   ├── orders.rs                # /orders — paginated order history
+│   │   ├── order_detail.rs          # /orders/:id — full order, cancel, refund
+│   │   ├── refund.rs                # /refund/:order_id — PDF upload, CV result
 │   │   ├── login.rs                 # /login
 │   │   ├── register.rs              # /register
-│   │   ├── profile.rs               # /profile — user info and store credit
+│   │   ├── profile.rs               # /profile — stats, recent orders, sign out
 │   │   └── not_found.rs             # /404
 │   │
-│   ├── components/                  # Reusable components, split by concern
-│   │   ├── mod.rs
-│   │   ├── layout/                  # App-wide structural components
-│   │   │   ├── mod.rs
+│   ├── components/
+│   │   ├── layout/
 │   │   │   ├── navbar.rs            # Top navigation bar
-│   │   │   ├── search_overlay.rs    # Fullscreen search modal
-│   │   │   ├── chatbot_widget.rs    # Floating chat button and chat window
+│   │   │   ├── search_overlay.rs    # Fullscreen search (stub)
+│   │   │   ├── chatbot_widget.rs    # Floating chat window (stub)
 │   │   │   └── protected_route.rs  # Redirects to /login if not authenticated
-│   │   ├── ui/                      # Generic UI primitives
-│   │   │   ├── mod.rs
-│   │   │   ├── button.rs
-│   │   │   ├── toast.rs             # Notification toasts
-│   │   │   ├── modal.rs             # Generic modal wrapper
-│   │   │   ├── spinner.rs           # Loading spinner
-│   │   │   └── badge.rs             # Status badges (in stock, low stock, etc.)
-│   │   └── product/                 # Product-specific components
-│   │       ├── mod.rs
-│   │       ├── product_card.rs      # Card used in grids and rows
-│   │       ├── product_grid.rs      # Responsive grid of product cards
-│   │       └── attribute_table.rs   # Renders a product's JSONB attributes as a table
+│   │   ├── ui/
+│   │   │   ├── spinner.rs           # Loading spinner — sm/md/lg sizes
+│   │   │   ├── tooltip.rs           # Hover tooltip with optional external link
+│   │   │   ├── button.rs            # (stub)
+│   │   │   ├── toast.rs             # (stub)
+│   │   │   ├── modal.rs             # (stub)
+│   │   │   └── badge.rs             # (stub)
+│   │   └── product/
+│   │       ├── product_card.rs      # Card used in all grids and rows
+│   │       ├── product_grid.rs      # (stub)
+│   │       └── attribute_table.rs   # (stub)
 │   │
-│   └── hooks/                       # Custom hooks for shared logic
-│       ├── mod.rs
-│       ├── use_api.rs               # Generic hook for async API calls with loading/error state
-│       ├── use_auth.rs              # Hook that exposes auth context actions
-│       └── use_cart.rs              # Hook that exposes cart context actions
+│   └── hooks/
+│       ├── use_api.rs               # (stub)
+│       ├── use_auth.rs              # (stub)
+│       └── use_cart.rs              # (stub)
 │
 ├── styles/
-│   ├── input.css                    # Tailwind directives + custom component classes
-│   └── tailwind.css                 # Generated output — do not edit manually
+│   ├── input.css                    # Tailwind directives + component classes
+│   └── tailwind.css                 # Generated — do not edit manually
 │
-├── index.html                       # HTML entry point — Trunk injects WASM bundle here
-├── Trunk.toml                       # Build config — Tailwind pre-build hook defined here
-├── tailwind.config.js               # Tailwind theme — colours, fonts, keyframes, animations
-├── Cargo.toml                       # Rust dependencies
-└── package.json                     # Node dependencies (Tailwind CLI only)
+├── index.html
+├── Trunk.toml
+├── tailwind.config.js
+├── Cargo.toml
+└── package.json
 ```
 
 ---
 
 ## How the app boots
-
-When the browser loads `index.html`, it downloads and executes the compiled WASM bundle. The entry point is `src/main.rs`:
 
 ```rust
 fn main() {
@@ -102,7 +93,7 @@ fn main() {
 }
 ```
 
-The `App` component wraps everything in three providers — the router, the auth context, and the cart context — then renders the navbar and a route switcher:
+The `App` component wraps everything in the router, auth context, and cart context:
 
 ```rust
 #[function_component(App)]
@@ -124,74 +115,38 @@ fn app() -> Html {
 }
 ```
 
-The order of providers matters. `AuthProvider` wraps `CartProvider` because in future the cart may need to read auth state (e.g. to sync a server-side cart for logged-in users).
-
 ---
 
 ## Routing
 
-All routes are defined in `src/route.rs` as a single Rust enum. Every variant maps to a URL pattern, and some carry parameters:
+All routes are defined in `src/route.rs`:
 
 ```rust
 #[derive(Clone, Routable, PartialEq)]
 pub enum Route {
-    #[at("/")]
-    Landing,
-    #[at("/product/:id")]
-    ProductDetail { id: String },
-    #[at("/orders/:id")]
-    OrderDetail { id: String },
-    #[at("/refund/:order_id")]
-    Refund { order_id: String },
-    // ... all other routes
+    #[at("/")]                        Landing,
+    #[at("/catalog/:group")]          CatalogFiltered { group: String },
+    #[at("/catalog")]                 Catalog,
+    #[at("/product/:id")]             ProductDetail { id: String },
+    #[at("/product/:id/compare")]     Compare { id: String },
+    #[at("/cart")]                    Cart,
+    #[at("/checkout")]                Checkout,
+    #[at("/order-confirmation/:id")]  OrderConfirmation { id: String },
+    #[at("/orders")]                  Orders,
+    #[at("/orders/:id")]              OrderDetail { id: String },
+    #[at("/refund/:order_id")]        Refund { order_id: String },
+    #[at("/login")]                   Login,
+    #[at("/register")]                Register,
+    #[at("/profile")]                 Profile,
+    #[not_found] #[at("/404")]        NotFound,
 }
 ```
 
-The `switch` function in `main.rs` matches each variant to a page component. Route parameters are passed directly as component props:
-
-```rust
-fn switch(route: Route) -> Html {
-    match route {
-        Route::ProductDetail { id } =>
-            html! { <pages::product_detail::ProductDetail {id} /> },
-        Route::Refund { order_id } =>
-            html! { <pages::refund::Refund {order_id} /> },
-        // ...
-    }
-}
-```
-
-To navigate programmatically inside a component, use the `use_navigator` hook:
-
-```rust
-let navigator = use_navigator().unwrap();
-navigator.push(&Route::OrderConfirmation { id: order.id.clone() });
-```
-
-To render a link in HTML, use the `Link` component:
-
-```rust
-html! {
-    <Link<Route> to={Route::Catalog}>
-        <span>{"Browse catalog"}</span>
-    </Link<Route>>
-}
-```
+`CatalogFiltered` vs `Catalog` — when a user clicks a category on the landing page they are routed to `/catalog/propulsion` etc., which pre-fills the group filter. The unfiltered `/catalog` route passes `initial_group: None`.
 
 ### Protected routes
 
-Pages that require authentication use the `ProtectedRoute` component, which checks the auth context and redirects to `/login` if the user is not logged in:
-
-```rust
-// In switch():
-Route::Checkout => html! {
-    <ProtectedRoute>
-        <pages::checkout::Checkout />
-    </ProtectedRoute>
-},
-```
-
-The following routes require authentication:
+The `ProtectedRoute` component checks the auth context and redirects to `/login` if the user is not authenticated. The following pages require auth:
 
 - `/checkout`
 - `/order-confirmation/:id`
@@ -204,13 +159,9 @@ The following routes require authentication:
 
 ## Global state
 
-The app has two global state stores, both implemented using Yew's `use_reducer` pattern. This is Yew's equivalent of React's `useReducer` + Context API.
+### AuthContext (`src/context/auth.rs`)
 
-### AuthContext
-
-Defined in `src/context/auth.rs`. Tracks the current user and JWT token.
-
-**State shape:**
+Tracks the current user and JWT token. Persists to `localStorage` on login so the session survives a page refresh.
 
 ```rust
 pub struct AuthState {
@@ -218,365 +169,227 @@ pub struct AuthState {
     pub token:      Option<String>,
     pub is_loading: bool,
 }
-```
 
-**Available actions:**
-
-```rust
 pub enum AuthAction {
-    Login(AuthResponse),   // stores user + token, persists to localStorage
+    Login(AuthResponse),   // stores user + token, writes to localStorage
     Logout,                // clears user + token, removes from localStorage
-    SetLoading(bool),      // toggles loading state during async auth calls
+    SetLoading(bool),
 }
 ```
 
-**Persistence:** When a user logs in, the token and user object are written to `localStorage` under the keys `starbound_token` and `starbound_user`. On app load, the provider reads these keys back and rehydrates the state — so a logged-in user stays logged in across browser refreshes without needing to re-authenticate.
-
-**Using it in a component:**
+Usage in a component:
 
 ```rust
 let auth = use_context::<AuthContext>().expect("AuthContext not found");
 
-// Check if logged in
-if auth.is_authenticated() { ... }
-
-// Get the current user
-if let Some(user) = &auth.user { ... }
-
-// Get the token for API calls
-if let Some(token) = &auth.token {
-    OrderService::list(token, 1).await
-}
-
-// Dispatch an action
+auth.is_authenticated()                    // bool
+auth.token.clone()                         // Option<String>
+auth.user.as_ref().map(|u| u.name.clone()) // Option<String>
 auth.dispatch(AuthAction::Logout);
 ```
 
-### CartContext
+### CartContext (`src/context/cart.rs`)
 
-Defined in `src/context/cart.rs`. Tracks cart items and quantities in memory — resets when the app is closed or refreshed.
-
-**State shape:**
+In-memory cart — resets on page refresh. No localStorage persistence.
 
 ```rust
 pub struct CartState {
-    pub items: Vec<CartItem>,  // each item is a ProductListItem + quantity
+    pub items: Vec<CartItem>,  // ProductListItem + quantity
 }
-```
 
-**Available actions:**
-
-```rust
 pub enum CartAction {
-    AddItem(ProductListItem),          // adds 1 unit, or increments if already present
-    RemoveItem(String),                // removes by product_id
-    UpdateQuantity(String, i32),       // sets quantity; removes item if qty <= 0
-    Clear,                             // empties the cart
+    AddItem(ProductListItem),       // adds 1, or increments if already present
+    RemoveItem(String),             // remove by product_id
+    UpdateQuantity(String, i32),    // set quantity; removes if qty <= 0
+    Clear,
 }
 ```
 
-**Computed values available on CartState:**
-
-```rust
-cart.total()        // sum of all line totals
-cart.item_count()   // sum of all quantities
-cart.contains(id)   // whether a product is already in the cart
-```
-
-**Using it in a component:**
-
-```rust
-let cart = use_context::<CartContext>().expect("CartContext not found");
-
-// Add a product
-cart.dispatch(CartAction::AddItem(product.clone()));
-
-// Remove a product
-cart.dispatch(CartAction::RemoveItem(product_id.clone()));
-
-// Update quantity
-cart.dispatch(CartAction::UpdateQuantity(product_id.clone(), new_qty));
-
-// Display cart count in the navbar
-html! { <span>{ cart.item_count() }</span> }
-```
+Computed helpers: `cart.total()`, `cart.item_count()`, `cart.contains(id)`.
 
 ---
 
 ## API service layer
 
-All HTTP communication lives in `src/services/`. No page or component ever calls `gloo_net` directly — they always go through a service.
+All HTTP calls go through `src/services/`. No component ever calls `gloo_net` directly.
 
-### ApiClient (`src/services/api.rs`)
-
-A low-level client with three methods: `get`, `post`, and `put`. Every method takes a path relative to `http://localhost:8000/api` and an optional JWT token. The token is automatically formatted as a `Bearer` header if provided.
+### ApiClient
 
 ```rust
-// GET with no auth
-ApiClient::get::<ProductListResponse>("/products?group=propulsion", None).await
-
-// GET with auth
-ApiClient::get::<Order>("/orders/abc-123", Some(&token)).await
-
-// POST with body and auth
-ApiClient::post::<CreateOrderRequest, Order>("/orders", &req, Some(&token)).await
-
-// PUT with auth (no body — used for cancel)
-ApiClient::put::<Order>("/orders/abc-123/cancel", Some(&token)).await
+ApiClient::get::<T>("/products?group=propulsion", None).await
+ApiClient::get::<T>("/orders/abc", Some(&token)).await
+ApiClient::post::<Body, T>("/orders", &req, Some(&token)).await
+ApiClient::put::<T>("/orders/abc/cancel", Some(&token)).await
 ```
 
-All methods return `Result<T, String>`. On a non-2xx response, the error contains the HTTP status code and response body as a string.
+All return `Result<T, String>`. Non-2xx responses return `Err("HTTP 404: ...")`.
 
-### ProductService (`src/services/products.rs`)
+### Services
 
 ```rust
-// Fetch a filtered, paginated list
+// Products
 ProductService::list(&filters).await
-
-// Fetch a single product with full attributes
 ProductService::get("le-001").await
-
-// Fetch two similar products for the comparison page
-// Returns up to 2 products of the same type, excluding the current product
 ProductService::get_similar("liquid_engine", "le-001").await
-```
 
-### AuthService (`src/services/auth.rs`)
-
-```rust
-// Login
+// Auth
 AuthService::login(LoginRequest { email, password }).await
-
-// Register
 AuthService::register(RegisterRequest { email, name, password }).await
-
-// Get current user from token (used to verify a stored token is still valid)
 AuthService::me(&token).await
-```
 
-### OrderService (`src/services/orders.rs`)
-
-```rust
-// List current user's orders (paginated)
+// Orders
 OrderService::list(&token, page).await
-
-// Get a single order
 OrderService::get(&order_id, &token).await
-
-// Create a new order
-OrderService::create(&create_order_request, &token).await
-
-// Cancel an order
+OrderService::create(&req, &token).await
 OrderService::cancel(&order_id, &token).await
 ```
 
 ---
 
-## Type system
+## Pages
 
-All data shapes are defined in `src/types.rs`. The types mirror the Go gateway's JSON responses, so adding `#[serde(rename = "field_name")]` attributes ensures field names match exactly even when Go uses snake_case.
+### Landing (`/`)
 
-Key types and what they represent:
+Fetches products from the gateway on mount — four separate requests, one per group, plus a featured request. Uses `use_effect_with((), ...)` to fire once. Each category row passes `group` to `CatalogFiltered` when the user clicks "View all".
 
-| Type                           | Purpose                                                  |
-| ------------------------------ | -------------------------------------------------------- |
-| `Product`                      | Full product record including `attributes: HashMap`      |
-| `ProductListItem`              | Lightweight product for catalog listings (no attributes) |
-| `ProductListResponse`          | Paginated wrapper: `data`, `total`, `page`, `limit`      |
-| `ProductFilters`               | Filter parameters with `to_query_string()` helper        |
-| `User`                         | Public user record (no password)                         |
-| `AuthResponse`                 | Login/register response: `token` + `user`                |
-| `Order`                        | Full order record with items and shipping address        |
-| `CartItem`                     | In-memory cart entry: `ProductListItem` + `quantity`     |
-| `CreateOrderRequest`           | Body for POST /api/orders                                |
-| `ShippingAddress`              | Embedded in orders and checkout form                     |
-| `ChatRequest` / `ChatResponse` | RAG chatbot message shapes                               |
-| `RefundResponse`               | CV service response after processing a receipt           |
+### Catalog (`/catalog` and `/catalog/:group`)
 
-Product attributes are typed as `Option<HashMap<String, serde_json::Value>>` rather than a fixed struct. This reflects the fact that each of the 13 product types has completely different attributes — rendering them in the UI is handled dynamically by the `attribute_table` component, which iterates the key-value pairs and formats them for display.
+Accepts an `initial_group: Option<String>` prop from the router. Filter state is held in component state — group, type, in-stock toggle, min/max price. Price sliders use a two-level debounce pattern:
+
+- `min_price` / `max_price` — update immediately on every slider event (display value)
+- `committed_min` / `committed_max` — only update 400ms after the slider stops moving (triggers API call)
+- Each slider has its own `Rc<RefCell<Option<Timeout>>>` debounce handle so pending timeouts are cancelled before scheduling a new one
+
+Grid transitions use a three-phase animation state (`GridPhase::Idle`, `Exiting`, `Entering`) — products fade out over 250ms, then the new set fades in with a staggered delay of 50ms per card.
+
+### Product detail (`/product/:id`)
+
+Fetches the full product (including attributes) on mount. Attributes are rendered as a key-value list with label formatting — underscores replaced with spaces, unit suffixes stripped and placed in brackets. Add to cart button shows a 1.5s "Added ✓" confirmation state.
+
+### Compare (`/product/:id/compare`)
+
+Fetches the current product, then calls `get_similar` to find up to two products of the same type. Renders as fixed-width (`w-80`) vertical cards — image, name in a fixed `h-12` container (prevents misalignment from long names), stock badge, CTA button, then all specs listed vertically with label above value. Numeric attributes are highlighted green (highest) or red (lowest) across the compared products. On mobile, cards are horizontally scrollable with snap points and prev/next navigation buttons.
+
+### Cart (`/cart`)
+
+Reads directly from `CartContext` — no API call needed. Quantity controls dispatch `UpdateQuantity` (removes item if quantity reaches zero). Shows auth-aware checkout CTA: "Sign in to checkout" for guests, "Proceed to checkout" for authenticated users.
+
+### Checkout (`/checkout`)
+
+Redirects to `/login` if not authenticated, to `/cart` if cart is empty. On submit, builds a `CreateOrderRequest` from form state and cart items, calls `OrderService::create`, clears the cart on success and navigates to order confirmation. Facility name and site code fields are optional with tooltip components explaining their purpose.
+
+### Refund (`/refund/:order_id`)
+
+Four-stage UI controlled by a `RefundStage` enum: `Upload`, `Processing`, `Success { valid, reason }`, `Error(String)`. File selection via a hidden `<input type="file">` triggered by clicking the upload area. On selection, validates the file is a PDF, then POSTs as `multipart/form-data` to the CV service at `http://localhost:8002/api/refund/validate`.
+
+### Orders and Order detail
+
+Both require auth. Order detail shows cancel button for orders in cancellable statuses (`pending`, `payment_processing`, `payment_failed`, `confirmed`). Shows "Request refund" button for `shipped` or `delivered` orders. Order status badges are colour-coded consistently across all pages using a shared `status_color()` helper.
+
+---
+
+## Components
+
+### Navbar
+
+Responsive. Logo text hidden on very small screens (icon only). Cart shows icon always, text on `sm+` screens. Auth state:
+
+- Logged out: "Sign in" ghost button + "Sign up" primary button
+- Logged in: avatar circle with initial + first name (truncated), links to profile
+
+### ProductCard
+
+The entire card is wrapped in a `Link` to the product detail page. The "Add to cart" button uses `e.stop_propagation()` to prevent the click bubbling to the link. Shows stock badge (green / orange / indigo). Price formatted as `$40K`, `$1.5M` etc.
+
+### Spinner
+
+Three sizes: `SpinnerSize::Sm`, `Md`, `Lg`. Used on all loading states across the app.
+
+### Tooltip
+
+Hover-triggered bubble with optional external link. The hover zone covers both the `i` icon and the bubble itself — `onmouseenter`/`onmouseleave` are on the wrapper span so moving the cursor from the icon to the bubble doesn't dismiss it. Font family is set inline on the bubble to prevent inheriting `font-orbitron` from parent label elements.
 
 ---
 
 ## Styling system
 
-All styles use Tailwind utility classes applied directly in Rust `html!` macros:
-
-```rust
-html! {
-    <div class="bg-navy2 border border-border rounded-2xl p-6 hover:border-orange transition-all duration-200">
-        <h2 class="font-orbitron text-lg font-bold text-white">{ &product.name }</h2>
-        <p class="font-exo text-muted text-sm mt-1">{ &product.product_type }</p>
-    </div>
-}
-```
-
 ### Design tokens
 
-These custom values are defined in `tailwind.config.js` and available as utility classes:
+| Class                       | Value     | Usage                           |
+| --------------------------- | --------- | ------------------------------- |
+| `bg-navy`                   | `#0a0f1e` | Page background                 |
+| `bg-navy2`                  | `#0d1526` | Card and navbar background      |
+| `bg-navy3`                  | `#111d35` | Input backgrounds, hover states |
+| `bg-navy4`                  | `#162040` | Active states                   |
+| `border-border`             | `#1e2e50` | Default border                  |
+| `text-orange` / `bg-orange` | `#f4681a` | Primary accent                  |
+| `bg-orange2`                | `#e05510` | Orange hover                    |
+| `text-muted`                | `#7a8aaa` | Secondary text                  |
+| `text-dim`                  | `#3a4e70` | Placeholder, disabled           |
 
-**Colours:**
-| Class | Hex | Usage |
-|---|---|---|
-| `bg-navy` / `text-navy` | `#0a0f1e` | Page background |
-| `bg-navy2` | `#0d1526` | Card and navbar background |
-| `bg-navy3` | `#111d35` | Input backgrounds, hover states |
-| `bg-navy4` | `#162040` | Active states, selected items |
-| `border-border` | `#1e2e50` | Default border colour |
-| `text-orange` / `bg-orange` | `#f4681a` | Primary accent — prices, CTAs, active states |
-| `bg-orange2` | `#e05510` | Orange hover state |
-| `text-muted` | `#7a8aaa` | Secondary text |
-| `text-dim` | `#3a4e70` | Placeholder text, disabled states |
+### Fonts
 
-**Fonts:**
+- `font-orbitron` — display font for headings, prices, SKUs, order IDs
+- `font-exo` — body font for all readable text, labels, descriptions
 
-- `font-orbitron` — display font for headings, logos, prices, SKUs
-- `font-exo` — body font for all readable text
+### Reusable component classes (`styles/input.css`)
 
-### Reusable component classes
-
-Defined in `styles/input.css` using Tailwind's `@layer components`:
-
-```css
-.btn-primary    /* orange filled button */
-.btn-ghost      /* bordered transparent button */
-.btn-outline    /* orange bordered button */
-.card           /* hoverable navy card with orange border on hover */
-.card-static    /* non-hoverable card */
-.input-field    /* dark input with orange focus ring */
-.select-field   /* dark select with orange focus ring */
-.label-mono     /* small uppercase orbitron label */
-.price-text     /* orange orbitron price */
-.badge-stock    /* green "In stock" badge */
-.badge-low      /* orange "X left" badge */
-.badge-pre      /* indigo "Pre-order" badge */
-.skeleton       /* shimmer loading placeholder */
+```
+.btn-primary    .btn-ghost      .btn-outline
+.card           .card-static
+.input-field    .select-field
+.label-mono     .price-text
+.badge-stock    .badge-low      .badge-pre
+.skeleton
+.scrollbar-hide
+.line-clamp-2
 ```
 
 ### Animations
 
-All animations are defined as Tailwind keyframes in `tailwind.config.js` and applied as utility classes:
+| Class                    | Effect              |
+| ------------------------ | ------------------- |
+| `animate-fade-up`        | Fade in + rise 20px |
+| `animate-fade-in`        | Opacity fade        |
+| `animate-slide-in-right` | Slide from right    |
+| `animate-slide-in-left`  | Slide from left     |
+| `animate-scale-in`       | Scale from 95%      |
+| `animate-pulse-glow`     | Orange glow pulse   |
+| `animate-float`          | Gentle bob          |
+| `animate-shimmer`        | Skeleton shimmer    |
 
-| Class                    | Effect                        | Usage                |
-| ------------------------ | ----------------------------- | -------------------- |
-| `animate-fade-up`        | Fades in while moving up 20px | Page content on load |
-| `animate-fade-in`        | Simple opacity fade           | Overlays, modals     |
-| `animate-slide-in-right` | Slides in from the right      | Cart panel, drawers  |
-| `animate-slide-in-left`  | Slides in from the left       | Filter panel         |
-| `animate-scale-in`       | Scales from 95% to 100%       | Modals, dropdowns    |
-| `animate-pulse-glow`     | Orange glow pulse             | CTAs, featured items |
-| `animate-float`          | Gentle up/down bob            | Hero elements        |
-| `animate-shimmer`        | Moving highlight              | Skeleton loaders     |
-
----
-
-## Pages overview
-
-| Page               | Route                     | Auth | Key functionality                                             |
-| ------------------ | ------------------------- | ---- | ------------------------------------------------------------- |
-| Landing            | `/`                       | No   | Hero, category nav, featured products, category rows, chatbot |
-| Catalog            | `/catalog`                | No   | Search results, filter sidebar, product grid                  |
-| Product detail     | `/product/:id`            | No   | Image, specs, add to cart, compare link                       |
-| Compare            | `/product/:id/compare`    | No   | Side-by-side comparison of 3 products                         |
-| Cart               | `/cart`                   | No   | Item list, quantities, totals, checkout CTA                   |
-| Checkout           | `/checkout`               | Yes  | Shipping form, payment method, order summary                  |
-| Order confirmation | `/order-confirmation/:id` | Yes  | Order ID, items, total, receipt download                      |
-| Orders             | `/orders`                 | Yes  | Paginated order history                                       |
-| Order detail       | `/orders/:id`             | Yes  | Full order with status, items, shipping                       |
-| Refund             | `/refund/:order_id`       | Yes  | PDF upload, CV processing, refund decision                    |
-| Login              | `/login`                  | No   | Email + password, link to register                            |
-| Register           | `/register`               | No   | Email + name + password, link to login                        |
-| Profile            | `/profile`                | Yes  | Name, store credit, order history summary                     |
-| 404                | `/404`                    | No   | Not found page                                                |
+Animation fill mode is `both` — the initial keyframe state (opacity: 0) is applied before the animation starts, which makes staggered entrances work correctly with `animation-delay`.
 
 ---
 
 ## Build and development
 
-### Running the dev server
-
 ```bash
 cd frontend
-trunk serve
-# Available at http://localhost:8080
-# Hot reload on file save
+trunk serve          # dev server at http://localhost:8080
+trunk build --release  # production build → frontend/dist/
 ```
 
-### Production build
+### Tailwind integration
 
-```bash
-trunk build --release
-# Output in frontend/dist/
-# This is what Electron loads in production
-```
-
-### How Tailwind is integrated
-
-Trunk runs Tailwind as a pre-build hook before each compilation, defined in `Trunk.toml`:
-
-```toml
-[[hooks]]
-stage = "pre_build"
-command = "node_modules/.bin/tailwindcss.cmd"
-command_arguments = [
-    "-i", "./styles/input.css",
-    "-o", "./styles/tailwind.css",
-    "--minify"
-]
-```
-
-Tailwind scans all `.rs` files for class names. This means class names must appear as complete strings in the source — they cannot be dynamically constructed, as Tailwind's scanner is a static text search, not a runtime evaluator.
-
-```rust
-// CORRECT — full class name present in source
-let active_class = if is_active { "bg-orange text-white" } else { "bg-navy3 text-muted" };
-
-// WRONG — Tailwind will not detect these
-let colour = "orange";
-let class = format!("bg-{} text-white", colour);  // bg-orange never appears as a string
-```
+Trunk runs Tailwind as a pre-build hook (`Trunk.toml`). Class names must appear as complete strings in source — dynamic construction like `format!("bg-{}", colour)` will not be detected by Tailwind's scanner.
 
 ### Adding a new page
 
-1. Create the file in `src/pages/your_page.rs`
-2. Add the component function with `#[function_component]`
-3. Add a variant to `Route` in `src/route.rs`
-4. Add a match arm to the `switch` function in `src/main.rs`
-5. Add the module to `src/pages/mod.rs`
-6. If auth is required, wrap in `<ProtectedRoute>` in the switch arm
-
----
-
-## Electron integration
-
-In development, Electron points at the Trunk dev server:
-
-```javascript
-// electron/main.js
-if (isDev) {
-  win.loadURL("http://localhost:8080");
-}
-```
-
-In production, Electron loads the compiled `dist/` folder directly as a local file:
-
-```javascript
-win.loadFile(path.join(__dirname, "../frontend/dist/index.html"));
-```
-
-This means the frontend WASM bundle needs to be built with `trunk build --release` before packaging the Electron app. No code changes to the frontend are required for desktop vs browser — they are identical builds.
+1. Create `src/pages/your_page.rs`
+2. Add `#[function_component]`
+3. Add variant to `Route` in `src/route.rs`
+4. Add match arm to `switch` in `src/main.rs`
+5. Add module to `src/pages/mod.rs`
+6. Wrap in `<ProtectedRoute>` in switch if auth required
 
 ---
 
 ## What is not yet implemented
 
-As of the current state of the project, the following are stubbed and pending:
-
-- All page content (pages render placeholder headings only)
-- `SearchOverlay` component
-- `ChatbotWidget` component
-- All `ui/` components (button, toast, modal, spinner, badge)
-- All `product/` components (product_card, product_grid, attribute_table)
-- All custom hooks (use_api, use_auth, use_cart)
-- `ProtectedRoute` is wired but not yet applied to protected pages in the switch function
-
-These will be built out page by page in subsequent development sessions.
+- `SearchOverlay` component — fullscreen search with common terms
+- `ChatbotWidget` component — floating chat button and window
+- `use_api`, `use_auth`, `use_cart` custom hooks
+- `button.rs`, `toast.rs`, `modal.rs`, `badge.rs` UI components
+- `product_grid.rs`, `attribute_table.rs` product components
+- `ProtectedRoute` not yet applied in the switch function (redirects handled inline per page)
