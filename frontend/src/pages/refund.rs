@@ -1,4 +1,20 @@
 use yew::prelude::*;
+use yew_router::prelude::*;
+use wasm_bindgen_futures::spawn_local;
+use wasm_bindgen::JsCast;
+use web_sys::{HtmlInputElement, FormData, File};
+use gloo_net::http::Request;
+use crate::components::ui::spinner::{Spinner, SpinnerSize};
+use crate::context::auth::AuthContext;
+use crate::route::Route;
+
+#[derive(Clone, PartialEq)]
+enum RefundStage {
+    Upload,
+    Processing,
+    Success { valid: bool, reason: String },
+    Error(String),
+}
 
 #[derive(Properties, PartialEq)]
 pub struct RefundProps {
@@ -7,9 +23,352 @@ pub struct RefundProps {
 
 #[function_component(Refund)]
 pub fn refund(props: &RefundProps) -> Html {
+    let auth      = use_context::<AuthContext>().expect("AuthContext not found");
+    let navigator = use_navigator().unwrap();
+    let stage     = use_state(|| RefundStage::Upload);
+    let file_name = use_state(|| Option::<String>::None);
+
+    if !auth.is_authenticated() {
+        navigator.push(&Route::Login);
+        return html! {};
+    }
+
+    let order_id = props.order_id.clone();
+
+    let on_file_selected = {
+        let stage     = stage.clone();
+        let file_name = file_name.clone();
+        Callback::from(move |e: Event| {
+            let input = e.target_unchecked_into::<HtmlInputElement>();
+            if let Some(files) = input.files() {
+                if let Some(file) = files.get(0) {
+                    process_file(file, stage.clone(), file_name.clone());
+                }
+            }
+        })
+    };
+
+    let on_retry = {
+        let stage     = stage.clone();
+        let file_name = file_name.clone();
+        Callback::from(move |_: MouseEvent| {
+            stage.set(RefundStage::Upload);
+            file_name.set(None);
+        })
+    };
+
+    let on_browse = Callback::from(|_: MouseEvent| {
+        if let Some(window) = web_sys::window() {
+            if let Some(document) = window.document() {
+                if let Some(el) = document.get_element_by_id("receipt-input") {
+                    el.unchecked_into::<HtmlInputElement>().click();
+                }
+            }
+        }
+    });
+
+    let stage_html = match (*stage).clone() {
+
+        RefundStage::Upload => html! {
+            <div class="animate-fade-up">
+                <div
+                    class="border-2 border-dashed border-border hover:border-orange/50
+                           bg-navy2 rounded-2xl p-12 text-center
+                           transition-all duration-200 cursor-pointer"
+                    onclick={on_browse}
+                >
+                    <div class="w-16 h-16 bg-navy3 border border-border rounded-2xl
+                                flex items-center justify-center mx-auto mb-5">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+                             stroke="#7a8aaa" stroke-width="1.5" stroke-linecap="round">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                    </div>
+
+                    {
+                        if let Some(name) = (*file_name).clone() {
+                            html! {
+                                <>
+                                    <p class="font-exo text-sm text-white mb-1">{ name }</p>
+                                    <p class="font-exo text-xs text-muted">
+                                        {"Click to choose a different file"}
+                                    </p>
+                                </>
+                            }
+                        } else {
+                            html! {
+                                <>
+                                    <p class="font-orbitron text-sm font-bold text-white mb-2">
+                                        {"Select your receipt"}
+                                    </p>
+                                    <p class="font-exo text-sm text-muted mb-1">{"Click to browse"}</p>
+                                    <p class="font-exo text-xs text-dim">{"PDF files only"}</p>
+                                </>
+                            }
+                        }
+                    }
+
+                    <input
+                        id="receipt-input"
+                        type="file"
+                        accept=".pdf"
+                        class="hidden"
+                        onchange={on_file_selected}
+                    />
+                </div>
+
+                <div class="mt-6 bg-navy3 border border-border rounded-xl px-4 py-3">
+                    <p class="font-exo text-xs text-muted">
+                        {"Your receipt PDF will be analysed by our computer vision system
+                          to extract order details and verify refund eligibility.
+                          Only receipts generated by Starbound are accepted."}
+                    </p>
+                </div>
+            </div>
+        },
+
+        RefundStage::Processing => html! {
+            <div class="card-static p-12 text-center animate-fade-up">
+                <Spinner size={SpinnerSize::Lg} />
+                <p class="font-orbitron text-base font-bold text-white mt-6 mb-2">
+                    {"Analysing receipt"}
+                </p>
+                <p class="font-exo text-sm text-muted mb-6">
+                    {"Our CV pipeline is reading your document..."}
+                </p>
+                <div class="space-y-2">
+                    { for [
+                        "Extracting order information",
+                        "Verifying receipt authenticity",
+                        "Checking refund eligibility",
+                    ].iter().map(|step| html! {
+                        <div class="flex items-center gap-3 justify-center">
+                            <div class="w-1.5 h-1.5 rounded-full bg-orange animate-pulse" />
+                            <span class="font-exo text-xs text-muted">{ step }</span>
+                        </div>
+                    })}
+                </div>
+            </div>
+        },
+
+        RefundStage::Success { valid, reason } => {
+            let retry_cb = on_retry.clone();
+            let oid      = order_id.clone();
+            html! {
+                <div class="animate-fade-up space-y-6">
+                    <div class={if valid {
+                        "card-static p-8 text-center border-green-500/30"
+                    } else {
+                        "card-static p-8 text-center border-red-500/30"
+                    }}>
+                        <div class={if valid {
+                            "w-16 h-16 bg-green-500/10 border-2 border-green-500/30
+                             rounded-full flex items-center justify-center mx-auto mb-5"
+                        } else {
+                            "w-16 h-16 bg-red-500/10 border-2 border-red-500/30
+                             rounded-full flex items-center justify-center mx-auto mb-5"
+                        }}>
+                            {
+                                if valid {
+                                    html! {
+                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+                                             stroke="#4ade80" stroke-width="2" stroke-linecap="round">
+                                            <polyline points="20 6 9 17 4 12"/>
+                                        </svg>
+                                    }
+                                } else {
+                                    html! {
+                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+                                             stroke="#f87171" stroke-width="2" stroke-linecap="round">
+                                            <line x1="18" y1="6" x2="6" y2="18"/>
+                                            <line x1="6" y1="6" x2="18" y2="18"/>
+                                        </svg>
+                                    }
+                                }
+                            }
+                        </div>
+
+                        <h2 class="font-orbitron text-xl font-bold mb-3">
+                            {
+                                if valid {
+                                    html! { <span class="text-green-400">{"Refund approved"}</span> }
+                                } else {
+                                    html! { <span class="text-red-400">{"Refund declined"}</span> }
+                                }
+                            }
+                        </h2>
+
+                        <p class="font-exo text-sm text-muted mb-4">{ &reason }</p>
+
+                        {
+                            if valid {
+                                html! {
+                                    <div class="bg-green-500/5 border border-green-500/20
+                                                rounded-xl px-4 py-3">
+                                        <p class="font-exo text-xs text-muted">
+                                            {"Note: This is a portfolio project — no real refund
+                                              has been processed. This is for demonstration only."}
+                                        </p>
+                                    </div>
+                                }
+                            } else {
+                                html! {}
+                            }
+                        }
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <Link<Route> to={Route::OrderDetail { id: oid }}>
+                            <button class="btn-ghost w-full sm:w-auto px-6 py-3">
+                                {"Back to order"}
+                            </button>
+                        </Link<Route>>
+                        {
+                            if !valid {
+                                html! {
+                                    <button
+                                        onclick={retry_cb}
+                                        class="btn-primary w-full sm:w-auto px-6 py-3"
+                                    >
+                                        {"Try again"}
+                                    </button>
+                                }
+                            } else {
+                                html! {}
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        },
+
+        RefundStage::Error(msg) => {
+            let retry_cb = on_retry.clone();
+            html! {
+                <div class="animate-fade-up space-y-6">
+                    <div class="card-static p-8 text-center border-red-500/30">
+                        <div class="w-16 h-16 bg-red-500/10 border-2 border-red-500/30
+                                    rounded-full flex items-center justify-center mx-auto mb-5">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+                                 stroke="#f87171" stroke-width="2" stroke-linecap="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="12"/>
+                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                        </div>
+                        <h2 class="font-orbitron text-xl font-bold text-red-400 mb-3">
+                            {"Processing failed"}
+                        </h2>
+                        <p class="font-exo text-sm text-muted">{ &msg }</p>
+                    </div>
+                    <button onclick={retry_cb} class="btn-primary w-full py-3">
+                        {"Try again"}
+                    </button>
+                </div>
+            }
+        },
+    };
+
     html! {
-        <div class="min-h-screen bg-navy flex items-center justify-center">
-            <h1 class="font-orbitron text-2xl text-orange">{ format!("Refund: {}", props.order_id) }</h1>
+        <div class="min-h-screen bg-navy">
+            <div class="max-w-2xl mx-auto px-4 py-10">
+
+                <div class="flex items-center gap-2 font-exo text-sm text-muted mb-8 animate-fade-in">
+                    <Link<Route> to={Route::Orders}>
+                        <span class="hover:text-orange transition-colors cursor-pointer">
+                            {"Orders"}
+                        </span>
+                    </Link<Route>>
+                    <span>{"/"}</span>
+                    <Link<Route> to={Route::OrderDetail { id: order_id.clone() }}>
+                        <span class="hover:text-orange transition-colors cursor-pointer">
+                            { format!("#{}", &order_id[..8.min(order_id.len())]) }
+                        </span>
+                    </Link<Route>>
+                    <span>{"/"}</span>
+                    <span class="text-white">{"Refund"}</span>
+                </div>
+
+                <div class="mb-8 animate-fade-up">
+                    <p class="label-mono mb-1">{"Returns"}</p>
+                    <h1 class="font-orbitron text-2xl font-bold text-white mb-2">
+                        {"Request a refund"}
+                    </h1>
+                    <p class="font-exo text-sm text-muted">
+                        {"Upload your PDF receipt and our system will automatically
+                          verify your order and process your refund request."}
+                    </p>
+                </div>
+
+                { stage_html }
+            </div>
         </div>
     }
+}
+
+fn process_file(
+    file:      File,
+    stage:     UseStateHandle<RefundStage>,
+    file_name: UseStateHandle<Option<String>>,
+) {
+    let name = file.name();
+    file_name.set(Some(name.clone()));
+
+    if !name.to_lowercase().ends_with(".pdf") {
+        stage.set(RefundStage::Error(
+            "Only PDF files are accepted. Please upload your Starbound receipt PDF.".to_string()
+        ));
+        return;
+    }
+
+    stage.set(RefundStage::Processing);
+
+    spawn_local(async move {
+        let form = match FormData::new() {
+            Ok(f)  => f,
+            Err(_) => {
+                stage.set(RefundStage::Error("Failed to prepare upload.".to_string()));
+                return;
+            }
+        };
+
+        if form.append_with_blob("file", &file).is_err() {
+            stage.set(RefundStage::Error("Failed to attach file.".to_string()));
+            return;
+        }
+
+        let request = match Request::post("http://localhost:8002/api/refund/validate")
+            .body(form)
+        {
+            Ok(r)  => r,
+            Err(e) => {
+                stage.set(RefundStage::Error(e.to_string()));
+                return;
+            }
+        };
+
+        match request.send().await {
+            Err(_) => stage.set(RefundStage::Error(
+                "Could not reach the CV service. Make sure it is running on port 8002.".to_string()
+            )),
+            Ok(resp) => {
+                #[derive(serde::Deserialize)]
+                struct CvResponse {
+                    valid:  bool,
+                    reason: String,
+                }
+                match resp.json::<CvResponse>().await {
+                    Ok(r) => stage.set(RefundStage::Success {
+                        valid:  r.valid,
+                        reason: r.reason,
+                    }),
+                    Err(_) => stage.set(RefundStage::Error(
+                        "Unexpected response from CV service.".to_string()
+                    )),
+                }
+            }
+        }
+    });
 }
