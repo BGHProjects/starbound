@@ -25,7 +25,8 @@ frontend/
 │   │
 │   ├── context/
 │   │   ├── auth.rs                  # AuthContext — user, token, login/logout
-│   │   └── cart.rs                  # CartContext — items, quantities, totals
+│   │   ├── cart.rs                  # CartContext — items, quantities, totals
+│   │   └── chat.rs                  # ChatContext — shared chat history and loading state
 │   │
 │   ├── services/
 │   │   ├── api.rs                   # ApiClient — GET/POST/PUT with optional auth
@@ -47,16 +48,18 @@ frontend/
 │   │   ├── login.rs                 # /login
 │   │   ├── register.rs              # /register
 │   │   ├── profile.rs               # /profile — stats, recent orders, sign out
+│   │   ├── chat.rs                  # /chat — full LLM-style chat page
 │   │   └── not_found.rs             # /404
 │   │
 │   ├── components/
 │   │   ├── layout/
 │   │   │   ├── navbar.rs            # Top navigation bar
-│   │   │   ├── chatbot_widget.rs    # Floating chat window (stub)
+│   │   │   ├── chatbot_widget.rs    # Floating chat button and compact window
 │   │   │   └── protected_route.rs  # Redirects to /login if not authenticated
 │   │   ├── ui/
 │   │   │   ├── spinner.rs           # Loading spinner — sm/md/lg sizes
 │   │   │   ├── tooltip.rs           # Hover tooltip with optional external link
+│   │   │   ├── chat_message.rs      # Parses [[Name|id]] markers into product links
 │   │   │   ├── button.rs            # (stub)
 │   │   │   ├── toast.rs             # (stub)
 │   │   │   ├── modal.rs             # (stub)
@@ -82,6 +85,8 @@ frontend/
 └── package.json
 ```
 
+Note: `search_overlay.rs` was removed — search functionality is handled entirely by the catalog page search bar.
+
 ---
 
 ## How the app boots
@@ -92,7 +97,7 @@ fn main() {
 }
 ```
 
-The `App` component wraps everything in the router, auth context, and cart context:
+The `App` component wraps everything in the router, auth context, cart context, and chat context:
 
 ```rust
 #[function_component(App)]
@@ -101,18 +106,22 @@ fn app() -> Html {
         <BrowserRouter>
             <AuthProvider>
                 <CartProvider>
-                    <div class="min-h-screen bg-navy">
-                        <components::layout::navbar::Navbar />
-                        <main>
-                            <Switch<Route> render={switch} />
-                        </main>
-                    </div>
+                    <ChatProvider>
+                        <div class="min-h-screen bg-navy">
+                            <components::layout::navbar::Navbar />
+                            <main>
+                                <Switch<Route> render={switch} />
+                            </main>
+                        </div>
+                    </ChatProvider>
                 </CartProvider>
             </AuthProvider>
         </BrowserRouter>
     }
 }
 ```
+
+Provider order matters — `AuthProvider` wraps `CartProvider` which wraps `ChatProvider`. `ChatProvider` is at the app level so the chat history is shared between the floating widget and the full chat page.
 
 ---
 
@@ -137,6 +146,7 @@ pub enum Route {
     #[at("/login")]                   Login,
     #[at("/register")]                Register,
     #[at("/profile")]                 Profile,
+    #[at("/chat")]                    Chat,
     #[not_found] #[at("/404")]        NotFound,
 }
 ```
@@ -145,7 +155,7 @@ pub enum Route {
 
 ### Protected routes
 
-The `ProtectedRoute` component checks the auth context and redirects to `/login` if the user is not authenticated. The following pages require auth:
+The following pages require authentication and redirect to `/login` if the user is not logged in:
 
 - `/checkout`
 - `/order-confirmation/:id`
@@ -176,35 +186,45 @@ pub enum AuthAction {
 }
 ```
 
-Usage in a component:
-
-```rust
-let auth = use_context::<AuthContext>().expect("AuthContext not found");
-
-auth.is_authenticated()                    // bool
-auth.token.clone()                         // Option<String>
-auth.user.as_ref().map(|u| u.name.clone()) // Option<String>
-auth.dispatch(AuthAction::Logout);
-```
-
 ### CartContext (`src/context/cart.rs`)
 
 In-memory cart — resets on page refresh. No localStorage persistence.
 
 ```rust
 pub struct CartState {
-    pub items: Vec<CartItem>,  // ProductListItem + quantity
+    pub items: Vec<CartItem>,
 }
 
 pub enum CartAction {
-    AddItem(ProductListItem),       // adds 1, or increments if already present
-    RemoveItem(String),             // remove by product_id
-    UpdateQuantity(String, i32),    // set quantity; removes if qty <= 0
+    AddItem(ProductListItem),
+    RemoveItem(String),
+    UpdateQuantity(String, i32),
     Clear,
 }
 ```
 
 Computed helpers: `cart.total()`, `cart.item_count()`, `cart.contains(id)`.
+
+### ChatContext (`src/context/chat.rs`)
+
+Shared between the floating `ChatbotWidget` and the full `/chat` page. Because it lives at the app level, conversation history carries over seamlessly when a user clicks "Expand" in the widget to open the full chat page.
+
+```rust
+pub struct ChatState {
+    pub messages:   Vec<ChatMessage>,
+    pub is_loading: bool,
+    pub session_id: Option<String>,
+}
+
+pub enum ChatAction {
+    AddMessage(ChatMessage),
+    SetLoading(bool),
+    SetSessionId(String),
+    Clear,
+}
+```
+
+The `session_id` is passed to the RAG service on every request so the backend can maintain per-session conversation history.
 
 ---
 
@@ -218,30 +238,11 @@ All HTTP calls go through `src/services/`. No component ever calls `gloo_net` di
 ApiClient::get::<T>("/products?group=propulsion", None).await
 ApiClient::get::<T>("/orders/abc", Some(&token)).await
 ApiClient::post::<Body, T>("/orders", &req, Some(&token)).await
+ApiClient::post::<Body, T>("/chat", &req, None).await
 ApiClient::put::<T>("/orders/abc/cancel", Some(&token)).await
 ```
 
-All return `Result<T, String>`. Non-2xx responses return `Err("HTTP 404: ...")`.
-
-### Services
-
-```rust
-// Products
-ProductService::list(&filters).await
-ProductService::get("le-001").await
-ProductService::get_similar("liquid_engine", "le-001").await
-
-// Auth
-AuthService::login(LoginRequest { email, password }).await
-AuthService::register(RegisterRequest { email, name, password }).await
-AuthService::me(&token).await
-
-// Orders
-OrderService::list(&token, page).await
-OrderService::get(&order_id, &token).await
-OrderService::create(&req, &token).await
-OrderService::cancel(&order_id, &token).await
-```
+All return `Result<T, String>`. Non-2xx responses return `Err("HTTP 404: ...")`. All requests go to the Go gateway at `http://localhost:8000/api` — the frontend never talks directly to the RAG or CV microservices.
 
 ---
 
@@ -249,41 +250,39 @@ OrderService::cancel(&order_id, &token).await
 
 ### Landing (`/`)
 
-Fetches products from the gateway on mount — four separate requests, one per group, plus a featured request. Uses `use_effect_with((), ...)` to fire once. Each category row passes `group` to `CatalogFiltered` when the user clicks "View all".
+Fetches products from the gateway on mount — four separate requests, one per group, plus a featured request. `ChatbotWidget` rendered at the bottom of the page.
 
 ### Catalog (`/catalog` and `/catalog/:group`)
 
-Accepts an `initial_group: Option<String>` prop from the router. Filter state is held in component state — group, type, in-stock toggle, min/max price. Price sliders use a two-level debounce pattern:
-
-- `min_price` / `max_price` — update immediately on every slider event (display value)
-- `committed_min` / `committed_max` — only update 400ms after the slider stops moving (triggers API call)
-- Each slider has its own `Rc<RefCell<Option<Timeout>>>` debounce handle so pending timeouts are cancelled before scheduling a new one
-
-Grid transitions use a three-phase animation state (`GridPhase::Idle`, `Exiting`, `Entering`) — products fade out over 250ms, then the new set fades in with a staggered delay of 50ms per card.
+Accepts an `initial_group: Option<String>` prop from the router. Price sliders use a two-level debounce pattern with `Rc<RefCell<Option<Timeout>>>` — each slider has its own debounce handle so pending timeouts are cancelled before scheduling a new one. Grid transitions use a three-phase animation state (`GridPhase::Idle`, `Exiting`, `Entering`). `ChatbotWidget` rendered at the bottom.
 
 ### Product detail (`/product/:id`)
 
-Fetches the full product (including attributes) on mount. Attributes are rendered as a key-value list with label formatting — underscores replaced with spaces, unit suffixes stripped and placed in brackets. Add to cart button shows a 1.5s "Added ✓" confirmation state.
+Fetches full product including attributes. Attributes rendered as key-value list with label formatting. `ChatbotWidget` rendered at the bottom.
 
 ### Compare (`/product/:id/compare`)
 
-Fetches the current product, then calls `get_similar` to find up to two products of the same type. Renders as fixed-width (`w-80`) vertical cards — image, name in a fixed `h-12` container (prevents misalignment from long names), stock badge, CTA button, then all specs listed vertically with label above value. Numeric attributes are highlighted green (highest) or red (lowest) across the compared products. On mobile, cards are horizontally scrollable with snap points and prev/next navigation buttons.
+Fetches current product then calls `get_similar` for up to two products of the same type. Fixed-width `w-80` vertical cards. Fixed `h-12` name container prevents card misalignment from long names. Numeric attributes highlighted green/red for best/worst values. Horizontal snap scroll on mobile with nav buttons. `ChatbotWidget` rendered at the bottom.
 
 ### Cart (`/cart`)
 
-Reads directly from `CartContext` — no API call needed. Quantity controls dispatch `UpdateQuantity` (removes item if quantity reaches zero). Shows auth-aware checkout CTA: "Sign in to checkout" for guests, "Proceed to checkout" for authenticated users.
+Reads from `CartContext` — no API call. Auth-aware checkout CTA. `ChatbotWidget` rendered at the bottom.
 
 ### Checkout (`/checkout`)
 
-Redirects to `/login` if not authenticated, to `/cart` if cart is empty. On submit, builds a `CreateOrderRequest` from form state and cart items, calls `OrderService::create`, clears the cart on success and navigates to order confirmation. Facility name and site code fields are optional with tooltip components explaining their purpose.
+Redirects to `/login` if not authenticated, `/cart` if cart empty. Facility name and site code are optional fields with `Tooltip` components. On submit calls `OrderService::create`, clears cart, navigates to order confirmation.
 
 ### Refund (`/refund/:order_id`)
 
-Four-stage UI controlled by a `RefundStage` enum: `Upload`, `Processing`, `Success { valid, reason }`, `Error(String)`. File selection via a hidden `<input type="file">` triggered by clicking the upload area. On selection, validates the file is a PDF, then POSTs as `multipart/form-data` to the CV service at `http://localhost:8002/api/refund/validate`.
+Four-stage UI via `RefundStage` enum: `Upload`, `Processing`, `Success { valid, reason }`, `Error(String)`. POSTs PDF as `multipart/form-data` to the gateway which proxies to the CV service.
+
+### Chat (`/chat`)
+
+Full LLM-style chat interface. Fixed layout — scrollable message history with pinned input at the bottom. Height set to `calc(100vh - 64px)` to fill below the navbar. Suggested prompts shown when empty. Typing indicator during loading. Enter to send, Shift+Enter for new line. Calls `POST /api/chat` on the gateway which proxies to the RAG service. Product mentions in responses rendered as clickable links via `ChatMessageContent`.
 
 ### Orders and Order detail
 
-Both require auth. Order detail shows cancel button for orders in cancellable statuses (`pending`, `payment_processing`, `payment_failed`, `confirmed`). Shows "Request refund" button for `shipped` or `delivered` orders. Order status badges are colour-coded consistently across all pages using a shared `status_color()` helper.
+Order detail shows cancel button for cancellable statuses. Shows "Request refund" for `shipped` or `delivered` orders. Status badges colour-coded via shared `status_color()` helper used consistently across all pages.
 
 ---
 
@@ -291,22 +290,27 @@ Both require auth. Order detail shows cancel button for orders in cancellable st
 
 ### Navbar
 
-Responsive. Logo text hidden on very small screens (icon only). Cart shows icon always, text on `sm+` screens. Auth state:
+Responsive. Logo text hidden on very small screens. Cart icon always visible, text on `sm+`. Auth state: logged out shows Sign in + Sign up buttons; logged in shows avatar circle with initial and first name (truncated, links to profile).
 
-- Logged out: "Sign in" ghost button + "Sign up" primary button
-- Logged in: avatar circle with initial + first name (truncated), links to profile
+### ChatbotWidget
+
+Floating bottom-right on Landing, Catalog, Product detail, Compare, and Cart pages. Toggle button opens a compact chat window. Shows last 6 messages from `ChatContext`. Suggested prompts shown when no messages. "Expand" button navigates to `/chat` — conversation history carries over because both the widget and the full page share the same `ChatContext`. Calls `POST /api/chat` through the gateway.
 
 ### ProductCard
 
-The entire card is wrapped in a `Link` to the product detail page. The "Add to cart" button uses `e.stop_propagation()` to prevent the click bubbling to the link. Shows stock badge (green / orange / indigo). Price formatted as `$40K`, `$1.5M` etc.
+Entire card wrapped in a `Link` to the product detail page. Add to cart button uses `e.stop_propagation()` to prevent navigation. Price formatted as `$40K`, `$1.5M` etc.
 
 ### Spinner
 
-Three sizes: `SpinnerSize::Sm`, `Md`, `Lg`. Used on all loading states across the app.
+Three sizes: `SpinnerSize::Sm`, `Md`, `Lg`.
 
 ### Tooltip
 
-Hover-triggered bubble with optional external link. The hover zone covers both the `i` icon and the bubble itself — `onmouseenter`/`onmouseleave` are on the wrapper span so moving the cursor from the icon to the bubble doesn't dismiss it. Font family is set inline on the bubble to prevent inheriting `font-orbitron` from parent label elements.
+Hover-triggered bubble with optional external link. Hover zone covers both the icon and bubble so moving the cursor to click the link doesn't dismiss it. Font set inline on the bubble to prevent inheriting `font-orbitron` from parent label elements.
+
+### ChatMessageContent
+
+Parses `[[Product Name|product_id]]` markers in assistant messages and renders them as clickable orange links navigating to `/product/:id`. Plain text segments rendered with `white-space: pre-wrap`. Used in both the full chat page and the floating widget.
 
 ---
 
@@ -346,18 +350,16 @@ Hover-triggered bubble with optional external link. The hover zone covers both t
 
 ### Animations
 
-| Class                    | Effect              |
-| ------------------------ | ------------------- |
-| `animate-fade-up`        | Fade in + rise 20px |
-| `animate-fade-in`        | Opacity fade        |
-| `animate-slide-in-right` | Slide from right    |
-| `animate-slide-in-left`  | Slide from left     |
-| `animate-scale-in`       | Scale from 95%      |
-| `animate-pulse-glow`     | Orange glow pulse   |
-| `animate-float`          | Gentle bob          |
-| `animate-shimmer`        | Skeleton shimmer    |
-
-Animation fill mode is `both` — the initial keyframe state (opacity: 0) is applied before the animation starts, which makes staggered entrances work correctly with `animation-delay`.
+| Class                    | Effect                                                         |
+| ------------------------ | -------------------------------------------------------------- |
+| `animate-fade-up`        | Fade in + rise 20px — fill mode `both` for staggered entrances |
+| `animate-fade-in`        | Opacity fade                                                   |
+| `animate-slide-in-right` | Slide from right                                               |
+| `animate-slide-in-left`  | Slide from left                                                |
+| `animate-scale-in`       | Scale from 95%                                                 |
+| `animate-pulse-glow`     | Orange glow pulse — used on chat toggle button                 |
+| `animate-float`          | Gentle bob                                                     |
+| `animate-shimmer`        | Skeleton shimmer                                               |
 
 ---
 
@@ -365,13 +367,9 @@ Animation fill mode is `both` — the initial keyframe state (opacity: 0) is app
 
 ```bash
 cd frontend
-trunk serve          # dev server at http://localhost:8080
+trunk serve            # dev server at http://localhost:8080
 trunk build --release  # production build → frontend/dist/
 ```
-
-### Tailwind integration
-
-Trunk runs Tailwind as a pre-build hook (`Trunk.toml`). Class names must appear as complete strings in source — dynamic construction like `format!("bg-{}", colour)` will not be detected by Tailwind's scanner.
 
 ### Adding a new page
 
@@ -386,8 +384,7 @@ Trunk runs Tailwind as a pre-build hook (`Trunk.toml`). Class names must appear 
 
 ## What is not yet implemented
 
-- `ChatbotWidget` component — floating chat button and window
 - `use_api`, `use_auth`, `use_cart` custom hooks
-- `button.rs`, `toast.rs`, `modal.rs`, `badge.rs` UI components
-- `product_grid.rs`, `attribute_table.rs` product components
-- `ProtectedRoute` not yet applied in the switch function (redirects handled inline per page)
+- `button.rs`, `toast.rs`, `modal.rs`, `badge.rs` UI stubs
+- `product_grid.rs`, `attribute_table.rs` product component stubs
+- `ProtectedRoute` not yet applied in the switch function — auth redirects handled inline per page
