@@ -1,3 +1,4 @@
+use crate::components::layout::chatbot_widget::ChatbotWidget;
 use yew::prelude::*;
 use yew_router::prelude::*;
 use crate::context::cart::{CartContext, CartAction};
@@ -226,6 +227,7 @@ pub fn cart() -> Html {
                     </div>
                 }
             </div>
+        <ChatbotWidget />
         </div>
     }
 }

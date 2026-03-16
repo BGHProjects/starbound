@@ -12,3 +12,4 @@ pub mod login;
 pub mod register;
 pub mod profile;
 pub mod not_found;
+pub mod chat;

@@ -1,3 +1,4 @@
+use crate::components::layout::chatbot_widget::ChatbotWidget;
 use yew::prelude::*;
 use yew_router::prelude::*;
 use wasm_bindgen_futures::spawn_local;
@@ -86,8 +87,9 @@ pub fn landing() -> Html {
 
                     <h1 class="font-orbitron text-5xl font-bold text-white mb-6 leading-tight">
                         {"Build Your "}
-                        <span class="text-orange">{"Rocket"}</span>
-                        {". Launch Your "}
+                        <span class="text-orange">{"Rocket."}</span>
+                        <br />
+                        {"Launch Your "}
                         <span class="text-orange">{"Vision."}
                         </span>
                     </h1>
@@ -204,6 +206,7 @@ fn category_row(label: &str, products: &[ProductListItem]) -> Html {
                         <ProductCard product={p.clone()} />
                     })}
                 </div>
+            <ChatbotWidget />
             </div>
         </section>
     }

@@ -1,3 +1,4 @@
+use crate::components::layout::chatbot_widget::ChatbotWidget;
 use yew::prelude::*;
 use yew_router::prelude::*;
 use wasm_bindgen_futures::spawn_local;
@@ -395,6 +396,7 @@ pub fn compare(props: &CompareProps) -> Html {
 
                 <div class="h-16" />
             </div>
+        <ChatbotWidget />
         </div>
     }
 }

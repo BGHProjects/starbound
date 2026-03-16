@@ -30,6 +30,8 @@ pub enum Route {
     Register,
     #[at("/profile")]
     Profile,
+    #[at("/chat")]
+    Chat,
     #[not_found]
     #[at("/404")]
     NotFound,
