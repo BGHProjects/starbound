@@ -52,7 +52,6 @@ frontend/
 │   ├── components/
 │   │   ├── layout/
 │   │   │   ├── navbar.rs            # Top navigation bar
-│   │   │   ├── search_overlay.rs    # Fullscreen search (stub)
 │   │   │   ├── chatbot_widget.rs    # Floating chat window (stub)
 │   │   │   └── protected_route.rs  # Redirects to /login if not authenticated
 │   │   ├── ui/
@@ -387,7 +386,6 @@ Trunk runs Tailwind as a pre-build hook (`Trunk.toml`). Class names must appear 
 
 ## What is not yet implemented
 
-- `SearchOverlay` component — fullscreen search with common terms
 - `ChatbotWidget` component — floating chat button and window
 - `use_api`, `use_auth`, `use_cart` custom hooks
 - `button.rs`, `toast.rs`, `modal.rs`, `badge.rs` UI components

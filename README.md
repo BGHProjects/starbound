@@ -248,7 +248,6 @@ http://localhost:8000/swagger/index.html
 | Frontend — refund             | ✅ Complete    |
 | Frontend — login / register   | ✅ Complete    |
 | Frontend — profile            | ✅ Complete    |
-| Frontend — search overlay     | 🔴 Not started |
 | Frontend — chatbot widget     | 🔴 Not started |
 | RAG service                   | 🔴 Not started |
 | CV service                    | 🔴 Not started |
