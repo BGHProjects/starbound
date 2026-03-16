@@ -7,6 +7,7 @@ use gloo_timers::callback::Timeout;
 use crate::context::chat::{ChatContext, ChatAction};
 use crate::services::api::ApiClient;
 use crate::types::{ChatMessage, ChatRequest, ChatResponse};
+use crate::components::ui::chat_message::ChatMessageContent;
 use crate::route::Route;
 
 #[function_component(Chat)]
@@ -270,7 +271,7 @@ pub fn chat() -> Html {
                                          text-white rounded-2xl rounded-tl-sm px-4 py-3"
                                     }}>
                                         <p class="font-exo text-sm leading-relaxed whitespace-pre-wrap">
-                                            { &msg.content }
+                                            <ChatMessageContent content={msg.content.clone()} is_user={is_user} />
                                         </p>
                                     </div>
                                 </div>

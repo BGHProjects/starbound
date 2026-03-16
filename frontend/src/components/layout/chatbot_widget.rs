@@ -6,6 +6,7 @@ use web_sys::HtmlInputElement;
 use crate::context::chat::{ChatContext, ChatAction};
 use crate::services::api::ApiClient;
 use crate::types::{ChatMessage, ChatRequest, ChatResponse};
+use crate::components::ui::chat_message::ChatMessageContent;
 use crate::route::Route;
 
 #[function_component(ChatbotWidget)]
@@ -204,7 +205,7 @@ pub fn chatbot_widget() -> Html {
                                              text-white rounded-xl rounded-tl-sm px-3 py-2"
                                         }}>
                                             <p class="font-exo text-xs leading-relaxed">
-                                                { &msg.content }
+                                                <ChatMessageContent content={msg.content.clone()} is_user={is_user} />
                                             </p>
                                         </div>
                                     </div>

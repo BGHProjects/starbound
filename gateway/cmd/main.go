@@ -100,8 +100,9 @@ func main() {
             orders.GET("/:id",        orderHandler.GetOrderByID)
             orders.PUT("/:id/cancel", orderHandler.CancelOrder)
         }
-    }
-
+        api.POST("/chat", handlers.ProxyChat)
+        }
+        
     port := os.Getenv("GATEWAY_PORT")
     if port == "" {
         port = "8000"
