@@ -4,6 +4,8 @@ use crate::types::ProductListItem;
 use crate::context::cart::{CartContext, CartAction};
 use crate::route::Route;
 
+use web_sys::console;
+
 #[derive(Properties, PartialEq)]
 pub struct ProductCardProps {
     pub product: ProductListItem,
@@ -47,15 +49,18 @@ pub fn product_card(props: &ProductCardProps) -> Html {
         other        => other,
     };
 
+    console::log_1(&format!("Product image URL: {}", product.image_url).into());
+
     html! {
         <Link<Route> to={Route::ProductDetail { id: product.id.clone() }}>
             <div class="card group flex flex-col overflow-hidden h-full cursor-pointer">
 
                 // Image area
                 <div class="h-44 bg-navy3 border-b border-border flex items-center justify-center relative overflow-hidden transition-colors duration-200 group-hover:bg-navy4">
-                    <span class="font-orbitron text-2xl font-bold text-border group-hover:text-orange transition-colors duration-200 tracking-widest select-none">
-                        { &product.product_type.to_uppercase()[..4.min(product.product_type.len())] }
-                    </span>
+                    <img src={product.image_url.clone()} alt="product image" class="w-full h-full object-cover" />
+                    // <span class="font-orbitron text-2xl font-bold text-border group-hover:text-orange transition-colors duration-200 tracking-widest select-none">
+                    //     { &product.product_type.to_uppercase()[..4.min(product.product_type.len())] }
+                    // </span>
                     <div class="absolute top-3 right-3">{ stock_badge }</div>
                     <div class="absolute top-3 left-3">
                         <span class="label-mono text-xs bg-navy2 px-2 py-1 rounded-lg border border-border">
