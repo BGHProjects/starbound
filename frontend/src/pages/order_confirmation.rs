@@ -5,6 +5,9 @@ use crate::components::ui::spinner::{Spinner, SpinnerSize};
 use crate::context::auth::AuthContext;
 use crate::services::orders::OrderService;
 use crate::types::Order;
+use wasm_bindgen::JsCast;
+use web_sys::{Blob, BlobPropertyBag, HtmlAnchorElement, Url};
+use js_sys::{Array, Uint8Array};
 use crate::route::Route;
 
 #[derive(Properties, PartialEq)]
@@ -74,6 +77,46 @@ pub fn order_confirmation(props: &OrderConfirmationProps) -> Html {
                 <p class="font-orbitron text-muted">{"Order not found"}</p>
             </div>
         };
+    };
+
+    let on_download = {
+        let token    = auth.token.clone().unwrap_or_default();
+        let order_id = o.id.clone();
+        Callback::from(move |_: MouseEvent| {
+            let token    = token.clone();
+            let order_id = order_id.clone();
+            spawn_local(async move {
+                let url = format!("http://localhost:8000/api/orders/{}/receipt", order_id);
+                let resp = gloo_net::http::Request::get(&url)
+                    .header("Authorization", &format!("Bearer {}", token))
+                    .send()
+                    .await;
+                if let Ok(resp) = resp {
+                    if let Ok(bytes) = resp.binary().await {
+                        let uint8 = Uint8Array::from(bytes.as_slice());
+                        let arr   = Array::new();
+                        arr.push(&uint8.buffer());
+                        let mut opts = BlobPropertyBag::new();
+                        opts.type_("application/pdf");
+                        if let Ok(blob) = Blob::new_with_u8_array_sequence_and_options(&arr, &opts) {
+                            if let Ok(obj_url) = Url::create_object_url_with_blob(&blob) {
+                                if let Some(window) = web_sys::window() {
+                                    if let Some(document) = window.document() {
+                                        if let Ok(el) = document.create_element("a") {
+                                            let a = el.unchecked_into::<HtmlAnchorElement>();
+                                            a.set_href(&obj_url);
+                                            a.set_download(&format!("starbound-receipt-{}.pdf", &order_id[..8]));
+                                            a.click();
+                                            let _ = Url::revoke_object_url(&obj_url);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        })
     };
 
     html! {
@@ -191,6 +234,12 @@ pub fn order_confirmation(props: &OrderConfirmationProps) -> Html {
                             {"View all orders"}
                         </button>
                     </Link<Route>>
+                    <button
+                        onclick={on_download.clone()}
+                        class="btn-ghost w-full sm:w-auto px-6 py-3"
+                    >
+                        {"Download receipt"}
+                    </button>
                     <Link<Route> to={Route::Catalog}>
                         <button class="btn-primary w-full sm:w-auto px-6 py-3">
                             {"Continue shopping"}

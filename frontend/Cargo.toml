@@ -24,6 +24,16 @@ web-sys = { version = "0.3", features = [
     "IntersectionObserver",
     "IntersectionObserverEntry",
     "IntersectionObserverInit",
+    "HtmlAnchorElement",
+    "HtmlInputElement",
+    "Blob",
+    "BlobPropertyBag",
+    "Url",
+    "FormData",
+    "File",
+    "FileList",
+    "DataTransfer",
+    "DragEvent",
 ]}
 js-sys = "0.3"
 

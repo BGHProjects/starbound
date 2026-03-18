@@ -53,6 +53,7 @@ func main() {
 	productHandler := handlers.NewProductHandler(database)
 	authHandler    := handlers.NewAuthHandler(userStore)
 	orderHandler   := handlers.NewOrderHandler(orderStore, database)
+receiptHandler := handlers.NewReceiptHandler(orderStore)
 
 	r := gin.Default()
 
@@ -99,6 +100,7 @@ func main() {
 			orders.POST("",           orderHandler.CreateOrder)
 			orders.GET("/:id",        orderHandler.GetOrderByID)
 			orders.PUT("/:id/cancel", orderHandler.CancelOrder)
+orders.GET("/:id/receipt", middleware.RequireAuth(), receiptHandler.GetReceipt)
 		}
 
 		api.POST("/chat",             handlers.ProxyChat)

@@ -37,12 +37,13 @@ pub fn refund(props: &RefundProps) -> Html {
 
     let on_file_selected = {
         let stage     = stage.clone();
+        let order_id  = order_id.clone();
         let file_name = file_name.clone();
         Callback::from(move |e: Event| {
             let input = e.target_unchecked_into::<HtmlInputElement>();
             if let Some(files) = input.files() {
                 if let Some(file) = files.get(0) {
-                    process_file(file, stage.clone(), file_name.clone());
+                    process_file(file, stage.clone(), file_name.clone(), order_id.clone());
                 }
             }
         })
@@ -312,6 +313,7 @@ fn process_file(
     file:      File,
     stage:     UseStateHandle<RefundStage>,
     file_name: UseStateHandle<Option<String>>,
+    order_id:  String,
 ) {
     let name = file.name();
     file_name.set(Some(name.clone()));
@@ -333,6 +335,11 @@ fn process_file(
                 return;
             }
         };
+
+        if form.append_with_str("order_id", &order_id).is_err() {
+            stage.set(RefundStage::Error("Failed to attach order ID.".to_string()));
+            return;
+        }
 
         if form.append_with_blob("file", &file).is_err() {
             stage.set(RefundStage::Error("Failed to attach file.".to_string()));

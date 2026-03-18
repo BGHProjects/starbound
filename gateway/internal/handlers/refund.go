@@ -24,8 +24,19 @@ var cvClient = &http.Client{
 	Timeout: 60 * time.Second,
 }
 
-// ProxyRefund forwards the PDF upload to the CV service
+// ProxyRefund forwards the PDF upload and order_id to the CV service
 func ProxyRefund(c *gin.Context) {
+	// Get order_id from the form
+	if err := c.Request.ParseMultipartForm(32 << 20); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to parse form"})
+		return
+	}
+	orderID := c.Request.FormValue("order_id")
+	if orderID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "order_id is required"})
+		return
+	}
+
 	file, header, err := c.Request.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "no file uploaded"})
@@ -43,6 +54,13 @@ func ProxyRefund(c *gin.Context) {
 	var buf bytes.Buffer
 	writer := multipart.NewWriter(&buf)
 
+	// Add order_id field
+	if err := writer.WriteField("order_id", orderID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to write order_id"})
+		return
+	}
+
+	// Add file
 	part, err := writer.CreateFormFile("file", header.Filename)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create form"})

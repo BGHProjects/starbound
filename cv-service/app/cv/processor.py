@@ -73,10 +73,18 @@ def extract_order_id(text: str) -> str | None:
     """
     Try to extract an order ID from the receipt text.
     Order IDs are UUIDs — 8-4-4-4-12 hex format.
+    Handles common OCR misreads like © -> c, o -> 0, O -> 0.
     """
+    # Normalise common OCR substitutions before matching
+    cleaned = text
+    cleaned = cleaned.replace("©", "c")
+    cleaned = cleaned.replace("\u00a9", "c")
     pattern = r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{1,4}\s?[0-9a-f]{1,4}-[0-9a-f]{12}"
-    match   = re.search(pattern, text, re.IGNORECASE)
-    return match.group(0) if match else None
+    match   = re.search(pattern, cleaned, re.IGNORECASE)
+    if not match:
+        return None
+    # Remove any spaces OCR inserted within segments
+    return re.sub(r"\s", "", match.group(0)).lower()
 
 
 def extract_total(text: str) -> float | None:
@@ -95,15 +103,12 @@ def extract_total(text: str) -> float | None:
     return None
 
 
-def validate_receipt(text: str) -> tuple[bool, str]:
+def validate_receipt(text: str, expected_order_id: str | None = None) -> tuple[bool, str]:
     """
     Apply validation rules to extracted receipt text.
     Returns (valid, reason).
     """
     text_lower = text.lower()
-
-    print("\n\t in the Validation function")
-    print(text)
 
     # Rule 1 — must contain Starbound branding and order reference
     missing_markers = [m for m in STARBOUND_MARKERS if m not in text_lower]
@@ -137,6 +142,13 @@ def validate_receipt(text: str) -> tuple[bool, str]:
             "Please ensure the document is complete."
         )
 
+    # Rule 5 — extracted order ID must match the order being refunded
+    if expected_order_id and order_id:
+        if order_id.lower() != expected_order_id.lower():
+            return False, (
+                "The order ID on this receipt does not match the order you are requesting a refund for. "
+                "Please upload the correct receipt."
+            )
     return True, (
         f"Receipt verified successfully. "
         f"Order {order_id} for ${total:,.2f} has been approved for refund. "
@@ -144,13 +156,13 @@ def validate_receipt(text: str) -> tuple[bool, str]:
     )
 
 
-def process_receipt(pdf_bytes: bytes) -> tuple[bool, str, str | None]:
+def process_receipt(pdf_bytes: bytes, expected_order_id: str | None = None) -> tuple[bool, str, str | None]:
     """
     Full pipeline — extract text, validate, return result.
     Returns (valid, reason, order_id).
     """
     text = extract_text_from_pdf(pdf_bytes)
 
-    valid, reason = validate_receipt(text)
+    valid, reason = validate_receipt(text, expected_order_id=expected_order_id)
     order_id = extract_order_id(text) if valid else None
     return valid, reason, order_id
