@@ -12,5 +12,12 @@
     "name": "Test Test",
     "hashed_password": "$2a$10$s8XRICG21CfXCbyY5IO9h.lTqyjZhcoHop65w5o5kTXTPXjMu6Cju",
     "created_at": "2026-03-15T06:37:57Z"
+  },
+  {
+    "id": "aacd115b-f3f1-4c62-bcd4-b71779b64158",
+    "email": "test2@test.com",
+    "name": "Test Test",
+    "hashed_password": "$2a$10$.BqH2QIcstCeHQWhGfb6bevq8gsoH58xP1wIDmG3jj..eO6L6xHOi",
+    "created_at": "2026-03-18T09:52:09Z"
   }
 ]

@@ -56,15 +56,15 @@
   }
   .badge-stock {
     @apply text-xs font-semibold px-2.5 py-1 rounded-full
-           bg-green-500/10 text-green-400 border border-green-500/25;
+           bg-green-700 text-green-400 border border-green-500/25;
   }
   .badge-low {
     @apply text-xs font-semibold px-2.5 py-1 rounded-full
-           bg-orange/10 text-orange border border-orange/25;
+           bg-orange text-white border border-orange;
   }
   .badge-pre {
     @apply text-xs font-semibold px-2.5 py-1 rounded-full
-           bg-indigo-500/10 text-indigo-400 border border-indigo-500/25;
+           bg-indigo-700 text-indigo-400 border border-indigo-500/25;
   }
   .skeleton {
     @apply rounded-xl bg-navy3 overflow-hidden relative;

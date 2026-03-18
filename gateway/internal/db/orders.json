@@ -127,5 +127,33 @@
     "total": 962500,
     "created_at": "2026-03-15T12:04:54Z",
     "updated_at": "2026-03-15T12:04:54Z"
+  },
+  {
+    "id": "4b2ce976-8719-43cd-9095-020fd03aeacd",
+    "user_id": "aacd115b-f3f1-4c62-bcd4-b71779b64158",
+    "status": "delivered",
+    "items": [
+      {
+        "product_id": "rf-003",
+        "product_name": "Apex Aerospace AtlasFrame A1",
+        "product_type": "rocket_frame",
+        "quantity": 1,
+        "unit_price": 2100000,
+        "line_total": 2100000
+      }
+    ],
+    "shipping_address": {
+      "facility_name": "",
+      "site_code": "",
+      "address_line_1": "Test",
+      "city": "Test",
+      "country": "US",
+      "postal_code": "4000"
+    },
+    "subtotal": 2100000,
+    "shipping_cost": 2500,
+    "total": 2102500,
+    "created_at": "2026-03-18T09:52:36Z",
+    "updated_at": "2026-03-18T09:52:36Z"
   }
 ]

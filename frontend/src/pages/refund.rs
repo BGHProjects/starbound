@@ -339,7 +339,7 @@ fn process_file(
             return;
         }
 
-        let request = match Request::post("http://localhost:8002/api/refund/validate")
+        let request = match Request::post("http://localhost:8000/api/refund/validate")
             .body(form)
         {
             Ok(r)  => r,
@@ -351,7 +351,7 @@ fn process_file(
 
         match request.send().await {
             Err(_) => stage.set(RefundStage::Error(
-                "Could not reach the CV service. Make sure it is running on port 8002.".to_string()
+                "Could not reach the service. Make sure the gateway and CV service are running.".to_string()
             )),
             Ok(resp) => {
                 #[derive(serde::Deserialize)]
