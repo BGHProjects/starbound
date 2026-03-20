@@ -1,33 +1,74 @@
 version: "3.9"
 
 services:
-  frontend:
-    build: ./frontend
-    ports:
-      - "${FRONTEND_PORT:-8080}:8080"
 
   gateway:
-    build: ./gateway
+    build:
+      context: .
+      dockerfile: docker/gateway.Dockerfile
     ports:
-      - "${GATEWAY_PORT:-8000}:8000"
-    env_file: .env
-    depends_on:
-      - rag-service
-      - cv-service
+      - "8000:8000"
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - GATEWAY_PORT=8000
+    volumes:
+      - gateway-data:/app/internal/db
+    networks:
+      - starbound
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   rag-service:
-    build: ./rag-service
+    build:
+      context: .
+      dockerfile: docker/rag.Dockerfile
     ports:
-      - "${RAG_PORT:-8001}:8001"
-    env_file: .env
-    volumes:
-      - ./rag-service/data:/app/data
-      - ./rag-service/chroma_db:/app/chroma_db
+      - "8001:8001"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    networks:
+      - starbound
+    depends_on:
+      gateway:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   cv-service:
-    build: ./cv-service
+    build:
+      context: .
+      dockerfile: docker/cv.Dockerfile
     ports:
-      - "${CV_PORT:-8002}:8002"
-    env_file: .env
-    volumes:
-      - ./cv-service/data:/app/data
+      - "8002:8002"
+    networks:
+      - starbound
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    ports:
+      - "80:80"
+    networks:
+      - starbound
+    depends_on:
+      gateway:
+        condition: service_healthy
+
+volumes:
+  gateway-data:
+
+networks:
+  starbound:
+    driver: bridge

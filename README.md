@@ -193,11 +193,29 @@ npm run build:win
 dist/win-unpacked/Starbound.exe
 ```
 
-### Running all services with Docker
+## Running with Docker
 
-```bash
+Copy the environment template and fill in your credentials:
+
+\```bash
+cp .env.example .env
+\```
+
+Then start all services:
+
+\```bash
 docker-compose up --build
-```
+\```
+
+| URL                                      | Service     |
+| ---------------------------------------- | ----------- |
+| http://localhost                         | Frontend    |
+| http://localhost:8000                    | Gateway     |
+| http://localhost:8000/swagger/index.html | Swagger UI  |
+| http://localhost:8001                    | RAG service |
+| http://localhost:8002                    | CV service  |
+
+See `docs/docker.md` for full documentation including individual service details, data persistence, and production deployment notes.
 
 ---
 
