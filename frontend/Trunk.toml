@@ -1,5 +1,6 @@
 [build]
-target = "index.html"
+target    = "index.html"
+public_url = "./"
 
 [[hooks]]
 stage = "pre_build"
