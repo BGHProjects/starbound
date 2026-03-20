@@ -37,19 +37,19 @@ Users can register, log in, and manage their account. Authentication is handled 
 
 ### 📦 Orders
 
-Authenticated users can place orders, view their full order history, inspect individual order details including shipping address and line items, and cancel orders that are still in a cancellable status.
+Authenticated users can place orders, view their full order history, inspect individual order details including shipping address and line items, cancel orders that are still in a cancellable status, and download a PDF receipt for any order.
 
 ### 🤖 RAG chatbot
 
-A retrieval-augmented generation chatbot powered by LangChain and OpenAI allows users to query the product catalog in natural language. Example queries include "build me a rocket under $1 million", "what components can withstand 400°C", or "what can I add to increase my rocket's top speed". The chatbot retrieves answers from internal product documentation stored in a Chroma vector database.
+A retrieval-augmented generation chatbot powered by LangChain and OpenAI allows users to query the product catalog in natural language. The chatbot is available as a floating widget on key pages and as a full LLM-style chat page. Product mentions in responses are rendered as clickable links. Prompt injection protection is implemented both at the input validation layer and in the system prompt.
 
 ### 📄 CV refund service
 
-When a user submits a refund request, they upload their PDF receipt. A computer vision pipeline (OpenCV + Tesseract OCR) processes the document, extracts the relevant order information, and determines whether the refund is valid — returning a decision to the user automatically.
+When a user submits a refund request, they upload their PDF receipt downloaded from the order detail page. A computer vision pipeline (OpenCV + Tesseract OCR + pdf2image) processes the document, extracts the order ID, and cross-references it against the order being refunded — preventing fraudulent submissions of receipts from different orders.
 
 ### 🖥️ Desktop application
 
-The entire application is wrapped in an Electron shell, producing a native desktop application for Windows and Linux from the same Yew/WASM codebase with no code changes required.
+The entire application is wrapped in an Electron shell, producing a native desktop application for Windows and Linux. Electron bundles a lightweight HTTP server to serve the compiled WASM frontend, allowing Yew's BrowserRouter to work correctly without the file:// URL limitations that affect WASM applications.
 
 ---
 
@@ -58,30 +58,14 @@ The entire application is wrapped in an Electron shell, producing a native deskt
 ```
 starbound/
 ├── frontend/          # Yew (Rust 1.81 / WASM) + Tailwind CSS 3
-│                      # Client-side SPA compiled to WebAssembly
-│                      # Trunk used as the build tool
-│
-├── gateway/           # Go 1.23
-│                      # API gateway — handles all requests from the frontend
-│                      # JWT authentication middleware
-│                      # Local JSON file stores (swappable for Supabase)
-│
-├── rag-service/       # Python 3.11 / FastAPI
-│                      # RAG chatbot microservice
-│                      # LangChain + ChromaDB + OpenAI embeddings
-│
-├── cv-service/        # Python 3.11 / FastAPI
-│                      # Computer vision refund processing microservice
-│                      # OpenCV + Tesseract OCR + pdf2image
-│
-├── electron/          # Electron 28 / Node 24
-│                      # Desktop application wrapper
-│
-├── tests/             # Playwright (TypeScript)
-│                      # End-to-end test suite
-│
+├── gateway/           # Go 1.23 — API gateway, JWT auth, PDF receipts
+├── rag-service/       # Python 3.11 / FastAPI / LangChain / ChromaDB
+├── cv-service/        # Python 3.11 / FastAPI / OpenCV / Tesseract
+├── electron/          # Electron 28 — desktop wrapper
+├── tests/             # Playwright (TypeScript) — E2E tests
 ├── docker/            # Shared Docker configuration
-├── docker-compose.yml # Orchestrates all services
+├── docker-compose.yml
+├── docs/              # Technical documentation per service
 └── .github/workflows/ # GitHub Actions CI
 ```
 
@@ -89,29 +73,31 @@ starbound/
 
 ## Technology versions
 
-| Technology     | Version | Purpose                        |
-| -------------- | ------- | ------------------------------ |
-| Rust           | 1.81.0  | Frontend language              |
-| Yew            | 0.21    | Rust/WASM frontend framework   |
-| Trunk          | 0.21    | Yew build tool and dev server  |
-| Tailwind CSS   | 3.x     | Utility-first CSS framework    |
-| Go             | 1.23.1  | API gateway                    |
-| Gin            | latest  | Go HTTP router                 |
-| golang-jwt     | v5      | JWT authentication             |
-| Swaggo         | latest  | OpenAPI/Swagger doc generation |
-| Python         | 3.11.5  | RAG and CV services            |
-| FastAPI        | latest  | Python web framework           |
-| LangChain      | latest  | RAG chain orchestration        |
-| ChromaDB       | latest  | Vector database for embeddings |
-| OpenAI         | latest  | Embeddings + LLM (GPT-4o)      |
-| OpenCV         | latest  | Computer vision processing     |
-| Tesseract      | latest  | OCR engine                     |
-| Supabase       | latest  | PostgreSQL database + auth     |
-| Electron       | 28      | Desktop application wrapper    |
-| Playwright     | latest  | End-to-end testing             |
-| Node.js        | 24.14.0 | Electron + tooling runtime     |
-| Docker         | 29.2.1  | Containerisation               |
-| Docker Compose | v3.9    | Multi-service orchestration    |
+| Technology     | Version | Purpose                             |
+| -------------- | ------- | ----------------------------------- |
+| Rust           | 1.81.0  | Frontend language                   |
+| Yew            | 0.21    | Rust/WASM frontend framework        |
+| Trunk          | 0.21    | Yew build tool and dev server       |
+| Tailwind CSS   | 3.x     | Utility-first CSS framework         |
+| Go             | 1.23.1  | API gateway                         |
+| Gin            | latest  | Go HTTP router                      |
+| golang-jwt     | v5      | JWT authentication                  |
+| go-pdf/fpdf    | latest  | PDF receipt generation              |
+| Swaggo         | latest  | OpenAPI/Swagger doc generation      |
+| Python         | 3.11.5  | RAG and CV services                 |
+| FastAPI        | latest  | Python web framework                |
+| LangChain      | latest  | RAG chain orchestration             |
+| ChromaDB       | latest  | Vector database for embeddings      |
+| OpenAI         | latest  | Embeddings + LLM (GPT-4o)           |
+| OpenCV         | latest  | Computer vision processing          |
+| Tesseract      | latest  | OCR engine                          |
+| pdf2image      | latest  | PDF to image conversion             |
+| Poppler        | latest  | PDF rendering backend for pdf2image |
+| Electron       | 28      | Desktop application wrapper         |
+| Playwright     | latest  | End-to-end testing                  |
+| Node.js        | 24.14.0 | Electron + tooling runtime          |
+| Docker         | 29.2.1  | Containerisation                    |
+| Docker Compose | v3.9    | Multi-service orchestration         |
 
 ---
 
@@ -122,17 +108,30 @@ Each service runs independently. Open a separate terminal for each.
 ### Prerequisites
 
 ```bash
-# Rust WASM target + Trunk (one-time setup)
+# Rust WASM target + Trunk
 rustup target add wasm32-unknown-unknown
 cargo install trunk
 cargo install wasm-bindgen-cli
+
+# Tesseract OCR (Windows)
+# Download from https://github.com/UB-Mannheim/tesseract/wiki
+
+# Poppler (Windows — required for CV service PDF processing)
+# Download from https://github.com/oschwartz10612/poppler-windows/releases
 ```
 
 ### Environment variables
 
 ```bash
-cp .env.example .env
-# Fill in your Supabase and OpenAI credentials in .env
+# gateway/.env
+JWT_SECRET=your-secret-here
+
+# rag-service/.env
+OPENAI_API_KEY=sk-...
+
+# cv-service/.env
+TESSERACT_CMD=C:/Program Files/Tesseract-OCR/tesseract.exe
+POPPLER_PATH=C:/Program Files/poppler/Release-x.x.x/poppler-x.x.x/Library/bin
 ```
 
 ### 1 — Go gateway
@@ -140,19 +139,21 @@ cp .env.example .env
 ```bash
 cd gateway
 go run cmd/main.go
-# Running at http://localhost:8000
-# Health check: http://localhost:8000/health
-# Swagger UI:   http://localhost:8000/swagger/index.html
+# http://localhost:8000
+# Swagger UI: http://localhost:8000/swagger/index.html
+# Static assets: http://localhost:8000/static/
 ```
+
+Note: The gateway serves the `frontend/static/` folder at `/static/`. This is required for the hero video to load on the landing page.
 
 ### 2 — RAG service
 
 ```bash
 cd rag-service
 source venv/Scripts/activate   # Windows
-# source venv/bin/activate     # Mac / Linux
 uvicorn app.main:app --reload --port 8001
-# Running at http://localhost:8001
+# http://localhost:8001
+# Products are ingested into the vector store automatically on first startup
 ```
 
 ### 3 — CV service
@@ -160,9 +161,8 @@ uvicorn app.main:app --reload --port 8001
 ```bash
 cd cv-service
 source venv/Scripts/activate   # Windows
-# source venv/bin/activate     # Mac / Linux
 uvicorn app.main:app --reload --port 8002
-# Running at http://localhost:8002
+# http://localhost:8002
 ```
 
 ### 4 — Frontend
@@ -170,15 +170,27 @@ uvicorn app.main:app --reload --port 8002
 ```bash
 cd frontend
 trunk serve
-# Running at http://localhost:8080
+# http://localhost:8080
 ```
 
-### 5 — Desktop (Electron)
+### 5 — Desktop (Electron — development)
 
 ```bash
 # Requires trunk serve to be running first
 cd electron
 NODE_ENV=development npm start
+```
+
+### 6 — Desktop (Electron — production build)
+
+```bash
+# Build the frontend first
+cd frontend && trunk build --release
+
+# Then build and run Electron
+cd electron
+npm run build:win
+dist/win-unpacked/Starbound.exe
 ```
 
 ### Running all services with Docker
@@ -210,19 +222,30 @@ cd cv-service  && source venv/Scripts/activate && pytest
 ```bash
 cd tests
 npx playwright test
-npx playwright test --ui       # UI mode
-npx playwright show-report     # View last report
+npx playwright test --ui
+npx playwright show-report
 ```
 
 ---
 
 ## API documentation
 
-The Go gateway serves a live interactive Swagger UI when running locally:
-
 ```
 http://localhost:8000/swagger/index.html
 ```
+
+---
+
+## PDF receipts and refunds
+
+The refund flow requires a PDF receipt generated by the app:
+
+1. Place an order through the checkout flow
+2. Go to the order detail page and click "Download receipt"
+3. Change the order status to `delivered` in `gateway/internal/db/orders.json`
+4. Go to the refund page for that order
+5. Upload the downloaded receipt PDF
+6. The CV service extracts the order ID and cross-references it against the order being refunded
 
 ---
 
