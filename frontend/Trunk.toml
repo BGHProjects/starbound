@@ -1,7 +1,5 @@
 [build]
 target = "index.html"
-dist = "dist"
-public_url = "/"
 
 [[hooks]]
 stage = "pre_build"
@@ -11,3 +9,6 @@ command_arguments = [
     "-o", "./styles/tailwind.css",
     "--minify"
 ]
+
+[[copy-dir]]
+path = "static"

@@ -36,10 +36,18 @@ pub fn landing() -> Html {
             spawn_local(async move {
                 // Featured — just grab the first 4 products across all groups
                 let mut featured_filters = ProductFilters::new();
-                featured_filters.limit = 4;
+                featured_filters.limit = 20;
 
                 match ProductService::list(&featured_filters).await {
-                    Ok(resp) => featured.set(resp.data),
+                    Ok(resp) => {
+                        use rand::seq::SliceRandom;
+                        use rand::SeedableRng;
+                        let mut rng = rand::rngs::SmallRng::from_rng(&mut rand::rng());
+                        let mut data = resp.data;
+                        data.shuffle(&mut rng);
+                        data.truncate(4);
+                        featured.set(data);
+                    },
                     Err(e)   => error.set(Some(e)),
                 }
                 loading_featured.set(false);
@@ -76,6 +84,21 @@ pub fn landing() -> Html {
             // ── Hero ─────────────────────────────────────────────
             <section class="relative px-6 py-24 text-center overflow-hidden">
 
+                // Video background
+                <video
+                    autoplay=true
+                    loop=true
+                    muted=true
+                    volume="0"
+                    playsinline=true
+                    class="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                >
+                    <source src="http://localhost:8000/static/hero.mp4" type="video/mp4" />
+                </video>
+
+                // Dark overlay
+                <div class="absolute inset-0 bg-navy opacity-70" />
+
                 // Background grid decoration
                 <div class="absolute inset-0 opacity-5" style="
                     background-image: linear-gradient(#f4681a 1px, transparent 1px),
@@ -83,22 +106,18 @@ pub fn landing() -> Html {
                     background-size: 60px 60px;
                 "></div>
 
-                <div class="relative max-w-4xl mx-auto animate-fade-up">
-
+                <div class="relative z-10 max-w-4xl mx-auto animate-fade-up">
                     <h1 class="font-orbitron text-5xl font-bold text-white mb-6 leading-tight">
-                        {"Build Your "}
-                        <span class="text-orange">{"Rocket."}</span>
+                    <span class="text-orange">{"Build Your "}</span>
+                        {"Rocket"}
                         <br />
                         {"Launch Your "}
-                        <span class="text-orange">{"Vision."}
-                        </span>
+                        <span class="text-orange">{"Vision"}</span>
                     </h1>
-
                     <p class="font-exo text-muted text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
-                        {"Browse our astronautics-grade components — from liquid rocket engines
+                        {"Browse our astronautics-grade components — from liquid rocket engines \
                           to avionics suites. Built for engineers, researchers, and visionaries."}
                     </p>
-
                     <div class="flex items-center justify-center gap-4 flex-wrap">
                         <Link<Route> to={Route::Catalog}>
                             <button class="btn-primary px-8 py-3 text-base animate-pulse-glow">
@@ -126,7 +145,7 @@ pub fn landing() -> Html {
             }
 
             // ── Featured components ───────────────────────────────
-            <section class="px-6 pb-16">
+            <section class="px-6 pb-16 mt-6">
                 <div class="max-w-6xl mx-auto">
                     <div class="flex items-center justify-between mb-6">
                         <div>

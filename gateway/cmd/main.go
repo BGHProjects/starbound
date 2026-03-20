@@ -69,6 +69,7 @@ receiptHandler := handlers.NewReceiptHandler(orderStore)
 	})
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+    r.Static("/static", "../frontend/static")
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{

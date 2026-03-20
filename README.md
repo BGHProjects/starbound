@@ -226,33 +226,9 @@ http://localhost:8000/swagger/index.html
 
 ---
 
-## Status
+## Other Notes
 
-| Area                          | Status         |
-| ----------------------------- | -------------- |
-| Go gateway — products         | ✅ Complete    |
-| Go gateway — auth             | ✅ Complete    |
-| Go gateway — orders           | ✅ Complete    |
-| Go gateway — chat proxy       | 🔴 Not started |
-| Go gateway — refund proxy     | 🔴 Not started |
-| Go gateway — Swagger docs     | ✅ Complete    |
-| Frontend — landing page       | ✅ Complete    |
-| Frontend — catalog            | ✅ Complete    |
-| Frontend — product detail     | ✅ Complete    |
-| Frontend — compare            | ✅ Complete    |
-| Frontend — cart               | ✅ Complete    |
-| Frontend — checkout           | ✅ Complete    |
-| Frontend — order confirmation | ✅ Complete    |
-| Frontend — orders list        | ✅ Complete    |
-| Frontend — order detail       | ✅ Complete    |
-| Frontend — refund             | ✅ Complete    |
-| Frontend — login / register   | ✅ Complete    |
-| Frontend — profile            | ✅ Complete    |
-| Frontend — chatbot widget     | 🔴 Not started |
-| RAG service                   | 🔴 Not started |
-| CV service                    | 🔴 Not started |
-| Electron wrapper              | 🔴 Not started |
-| E2E tests                     | 🔴 Not started |
+The Go gateway serves the video used on the landing page, so the backend has to be running in order to see this video on that page
 
 ---
 

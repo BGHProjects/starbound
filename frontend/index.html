@@ -14,5 +14,16 @@
       rel="stylesheet"
     />
   </head>
-  <body class="bg-navy min-h-screen text-slate-100 font-exo antialiased"></body>
+  <body class="bg-navy min-h-screen text-slate-100 font-exo antialiased">
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      document.querySelectorAll("video").forEach(function(v) { v.muted = true; });
+    });
+    // Also handle dynamically added videos
+    var observer = new MutationObserver(function(mutations) {
+      document.querySelectorAll("video").forEach(function(v) { v.muted = true; });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  </script>
+</body>
 </html>
