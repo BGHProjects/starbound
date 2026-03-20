@@ -27,3 +27,24 @@ frontend/node_modules/
 # OS
 Thumbs.db
 *.swp
+# Build outputs
+electron/dist/
+electron/node_modules/
+frontend/dist/
+
+# Python
+rag-service/venv/
+cv-service/venv/
+**/__pycache__/
+**/*.pyc
+
+# Rust
+frontend/target/
+
+# Environment files
+.env
+*/.env
+
+# Test receipts
+cv-service/test_receipt.pdf
+cv-service/starbound-receipt-*.pdf
