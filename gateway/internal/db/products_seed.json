@@ -167,7 +167,6 @@
       "torsional_strength_nm": 3900000
     }
   },
-
   {
     "id": "pf-001",
     "name": "Apex AeroShield Panel S1",
@@ -190,7 +189,6 @@
       "aerodynamics": "Low drag optimized"
     }
   },
-
   {
     "id": "pf-002",
     "name": "Orbital Dynamics ThermalSkin T2",
