@@ -48,3 +48,5 @@ frontend/target/
 # Test receipts
 cv-service/test_receipt.pdf
 cv-service/starbound-receipt-*.pdf
+tests/test-results/
+tests/playwright-report/
