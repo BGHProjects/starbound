@@ -343,7 +343,6 @@
       "aerodynamics": "Reentry optimized"
     }
   },
-
   {
     "id": "cf-001",
     "name": "Apex AeroFin AF1",
@@ -664,7 +663,6 @@
       "weight_kg": 4.4
     }
   },
-
   {
     "id": "ns-001",
     "name": "Apex StarTrack Sensor Suite S1",
@@ -849,7 +847,6 @@
       "redundancy_level": "Dual redundancy"
     }
   },
-
   {
     "id": "ca-001",
     "name": "Apex VectorActuator VA1",
@@ -1026,7 +1023,6 @@
       "redundancy_level": "Triple modular redundancy"
     }
   },
-
   {
     "id": "tm-001",
     "name": "Apex ComLink TX1",
