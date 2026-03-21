@@ -1847,7 +1847,6 @@
       "gimbal_range_deg": 7
     }
   },
-
   {
     "id": "pt-001",
     "name": "Apex Aerospace CryoTank T1",
@@ -1908,7 +1907,6 @@
       "mass_kg": 7800
     }
   },
-
   {
     "id": "rn-001",
     "name": "Apex Aerospace Nozzle NX1",
@@ -2030,7 +2028,6 @@
       "mass_kg": 8000
     }
   },
-
   {
     "id": "rn-002",
     "name": "Orbital Dynamics Nozzle RN2",
