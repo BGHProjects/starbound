@@ -237,9 +237,7 @@ pub fn order_detail(props: &OrderDetailProps) -> Html {
                                     <div class="w-24 h-24 bg-navy3 border border-border rounded-xl
                                                 flex items-center justify-center flex-shrink-0
                                                 hover:border-orange transition-colors cursor-pointer">
-                                        <span class="font-orbitron text-xs font-bold text-border">
-                                            { &item.product_type.to_uppercase()[..4.min(item.product_type.len())] }
-                                        </span>
+                                        <img src={format!("/{}", item.image_url)} alt="product image" class="w-full h-full object-cover" />
                                     </div>
                                 </Link<Route>>
                                 <div class="flex-1 min-w-0">

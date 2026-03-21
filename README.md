@@ -15,7 +15,6 @@ Starbound allows users to browse a catalog of rocket parts, create accounts, com
 | **RAG Service** | Python / FastAPI               |
 | **CV Service**  | Python / FastAPI               |
 | **Desktop**     | Electron                       |
-| **Database**    | Supabase (PostgreSQL)          |
 | **Testing**     | Playwright + testify + pytest  |
 | **Containers**  | Docker + Docker Compose        |
 

@@ -1,5 +1,5 @@
 use crate::services::api::ApiClient;
-use crate::types::{AuthResponse, LoginRequest, RegisterRequest, User};
+use crate::types::{AuthResponse, LoginRequest, RegisterRequest};
 
 pub struct AuthService;
 
@@ -10,9 +10,5 @@ impl AuthService {
 
     pub async fn register(req: RegisterRequest) -> Result<AuthResponse, String> {
         ApiClient::post("/auth/register", &req, None).await
-    }
-
-    pub async fn me(token: &str) -> Result<User, String> {
-        ApiClient::get("/auth/me", Some(token)).await
     }
 }

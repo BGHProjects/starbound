@@ -84,9 +84,7 @@ pub fn cart() -> Html {
                                         // Image placeholder
                                         <Link<Route> to={Route::ProductDetail { id: product_id.clone() }}>
                                             <div class="w-20 h-20 bg-navy3 border border-border rounded-xl flex items-center justify-center flex-shrink-0 cursor-pointer hover:border-orange transition-colors duration-200">
-                                                <span class="font-orbitron text-xs font-bold text-border">
-                                                    { &item.product.product_type.to_uppercase()[..4.min(item.product.product_type.len())] }
-                                                </span>
+                                                <img src={format!("/{}", &item.product.image_url)} alt="product image" class="w-full h-full object-cover" />
                                             </div>
                                         </Link<Route>>
 

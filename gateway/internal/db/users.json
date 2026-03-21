@@ -215,5 +215,26 @@
     "name": "Auth Test User",
     "hashed_password": "$2a$10$I8P.HCPj7QuDWDCmEK28EeAJ0tDpwVnt4a0RcjRvhcd2dty5Tfiee",
     "created_at": "2026-03-21T00:43:52Z"
+  },
+  {
+    "id": "3d26f904-ef50-477b-9b12-736ccd88af6f",
+    "email": "orders-1774076850529@playwright.dev",
+    "name": "Orders User",
+    "hashed_password": "$2a$10$8XlwVh.NC5cDBeNCXZMyc..1ElVkyizrNDZTiSmabHve49KeE2yzW",
+    "created_at": "2026-03-21T07:07:36Z"
+  },
+  {
+    "id": "f6e02cf7-cf78-4ec6-966d-2fb13550704b",
+    "email": "profile-1774076857687@playwright.dev",
+    "name": "Profile User",
+    "hashed_password": "$2a$10$NUuy/fRiI64YBYh4LNftc.tv9R2KzRIy1Mub4RAfpqTGYLZnGkK0m",
+    "created_at": "2026-03-21T07:07:39Z"
+  },
+  {
+    "id": "4ffee271-d4d2-4a99-a0eb-e529e27619d1",
+    "email": "auth-test-1774076850103@playwright.dev",
+    "name": "Auth Test User",
+    "hashed_password": "$2a$10$foFwHCD6yrYAxhQa1DAeBOFXh7gMXPrxfW9gFzM42YQZ2iOFJCpdS",
+    "created_at": "2026-03-21T07:07:41Z"
   }
 ]

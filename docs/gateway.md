@@ -35,7 +35,7 @@ swag init -g cmd/main.go --output docs
 
 ## Architecture
 
-The gateway uses a local JSON file store for all data — products, users, and orders are each stored in a separate JSON file under `internal/db/`. The `DB` interface is designed to be swappable for a Supabase/PostgreSQL backend without changing any handler code.
+The gateway uses a local JSON file store for all data — products, users, and orders are each stored in a separate JSON file under `internal/db/`.
 
 ```
 cmd/
@@ -43,7 +43,6 @@ cmd/
 
 internal/
 ├── db/
-│   ├── supabase.go          # DB interface + JSONFileDB implementation
 │   ├── user_store.go        # UserStore — bcrypt password hashing
 │   ├── order_store.go       # OrderStore — order CRUD
 │   ├── products_seed.json   # Product data
@@ -261,7 +260,7 @@ Each product type has its own typed attribute struct in `internal/models/product
 
 ## Data layer
 
-The `DB` interface in `internal/db/supabase.go` defines all product operations. The current implementation (`JSONFileDB`) reads from `products_seed.json` at startup and holds everything in memory. Swapping to Supabase requires only a new struct implementing the same interface.
+The current implementation (`JSONFileDB`) reads from `products_seed.json` at startup and holds everything in memory.
 
 `UserStore` and `OrderStore` read from and write to their respective JSON files on every operation — no in-memory caching. This is intentional for simplicity and means data persists across gateway restarts.
 

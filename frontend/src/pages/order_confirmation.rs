@@ -156,9 +156,7 @@ pub fn order_confirmation(props: &OrderConfirmationProps) -> Html {
                             <div class="flex items-center gap-4 py-3 border-b border-border last:border-0">
                                 <div class="w-24 h-24 bg-navy3 border border-border rounded-xl
                                             flex items-center justify-center flex-shrink-0">
-                                    <span class="font-orbitron text-xs font-bold text-border">
-                                        { &item.product_type.to_uppercase()[..4.min(item.product_type.len())] }
-                                    </span>
+                                    <img src={format!("/{}", item.image_url)} alt="product image" class="w-full h-full object-cover" />
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <p class="font-exo text-sm font-medium text-white truncate">

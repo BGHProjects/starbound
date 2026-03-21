@@ -208,7 +208,6 @@ docker-compose exec cv-service bash
 The current Docker setup is designed for local development and portfolio demonstration. For a production deployment, the following would need to be addressed:
 
 - **Secrets management** — `JWT_SECRET` and `OPENAI_API_KEY` should be injected via a secrets manager (AWS Secrets Manager, HashiCorp Vault) rather than a `.env` file
-- **Database** — the JSON file store should be replaced with the Supabase/PostgreSQL backend. The `DB` interface in the gateway is designed for this swap
 - **HTTPS** — an nginx reverse proxy with Let's Encrypt certificates should sit in front of all services
 - **CORS** — the gateway's wildcard `*` CORS policy should be restricted to the production domain
 - **RAG persistence** — ChromaDB should be configured with a persistent file store or replaced with a managed vector database

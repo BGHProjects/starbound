@@ -39,20 +39,6 @@ pub struct ProductListResponse {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct ProductGroup {
-    pub group: String,
-    pub label: String,
-    pub types: Vec<ProductTypeEntry>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct ProductTypeEntry {
-    #[serde(rename = "type")]
-    pub type_key: String,
-    pub label:    String,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct User {
     pub id:         String,
     pub email:      String,
@@ -83,6 +69,7 @@ pub struct RegisterRequest {
 pub struct OrderItem {
     pub product_id:   String,
     pub product_name: String,
+    pub image_url:    String,
     pub product_type: String,
     pub quantity:     i32,
     pub unit_price:   f64,
@@ -149,11 +136,6 @@ impl CartItem {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct ApiError {
-    pub error: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ChatMessage {
     pub role:    String,
     pub content: String,
@@ -169,14 +151,6 @@ pub struct ChatRequest {
 pub struct ChatResponse {
     pub answer:  String,
     pub sources: Vec<String>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct RefundResponse {
-    pub valid:          bool,
-    pub order_id:       Option<String>,
-    pub reason:         String,
-    pub extracted_data: Option<HashMap<String, serde_json::Value>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Default)]

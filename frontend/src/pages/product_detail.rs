@@ -138,9 +138,8 @@ pub fn product_detail(props: &ProductDetailProps) -> Html {
                     // ── Left — image ─────────────────────────────
                     <div>
                         <div class="bg-navy2 border border-border rounded-2xl aspect-square flex items-center justify-center relative overflow-hidden">
-                            <span class="font-orbitron text-6xl font-bold text-border tracking-widest select-none">
-                                { &p.product_type.to_uppercase()[..4.min(p.product_type.len())] }
-                            </span>
+                        
+                            <img src={format!("/{}", p.image_url)} alt="product image" class="w-full h-full object-cover" />
 
                             // Category tag
                             <div class="absolute top-4 left-4">

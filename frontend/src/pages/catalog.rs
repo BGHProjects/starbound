@@ -1,6 +1,5 @@
 use crate::components::layout::chatbot_widget::ChatbotWidget;
 use yew::prelude::*;
-use yew_router::prelude::*;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlInputElement;
 use gloo_timers::callback::Timeout;
@@ -10,7 +9,6 @@ use crate::components::product::product_card::ProductCard;
 use crate::components::ui::spinner::{Spinner, SpinnerSize};
 use crate::services::products::ProductService;
 use crate::types::{ProductListItem, ProductFilters};
-use crate::route::Route;
 
 #[derive(Clone, PartialEq)]
 struct GroupOption {

@@ -34,6 +34,7 @@ func (s OrderStatus) IsCancellable() bool {
 type OrderItem struct {
     ProductID   string  `json:"product_id"`
     ProductName string  `json:"product_name"`
+	ImageURL   string  `json:"image_url"`
     ProductType string  `json:"product_type"`
     Quantity    int     `json:"quantity"`
     UnitPrice   float64 `json:"unit_price"`

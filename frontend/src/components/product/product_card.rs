@@ -4,8 +4,6 @@ use crate::types::ProductListItem;
 use crate::context::cart::{CartContext, CartAction};
 use crate::route::Route;
 
-use web_sys::console;
-
 #[derive(Properties, PartialEq)]
 pub struct ProductCardProps {
     pub product: ProductListItem,
@@ -48,8 +46,6 @@ pub fn product_card(props: &ProductCardProps) -> Html {
         "propulsion" => "Propulsion",
         other        => other,
     };
-
-    console::log_1(&format!("Product image URL: {}", product.image_url).into());
 
     html! {
         <Link<Route> to={Route::ProductDetail { id: product.id.clone() }}>

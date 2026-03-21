@@ -272,9 +272,7 @@ pub fn compare(props: &CompareProps) -> Html {
                                     >
                                         // Square image — full width of card, no padding
                                         <div class="w-full aspect-square bg-navy3 flex items-center justify-center border-b border-border">
-                                            <span class="font-orbitron text-2xl font-bold text-border tracking-widest select-none">
-                                                { &p.product_type.to_uppercase()[..4.min(p.product_type.len())] }
-                                            </span>
+                                            <img src={format!("/{}", p.image_url)} alt="product image" class="w-full h-full object-cover" />
                                         </div>
 
                                         // Card body — consistent padding

@@ -139,6 +139,7 @@ func (s *OrderStore) CreateOrder(userID string, req models.CreateOrderRequest, p
         items = append(items, models.OrderItem{
             ProductID:   product.ID,
             ProductName: product.Name,
+			ImageURL:    product.ImageURL,
             ProductType: string(product.Type),
             Quantity:    reqItem.Quantity,
             UnitPrice:   product.Price,

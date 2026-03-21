@@ -14,10 +14,6 @@ impl CartState {
     pub fn item_count(&self) -> i32 {
         self.items.iter().map(|i| i.quantity).sum()
     }
-
-    pub fn contains(&self, product_id: &str) -> bool {
-        self.items.iter().any(|i| i.product.id == product_id)
-    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
