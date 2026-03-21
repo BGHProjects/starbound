@@ -10,14 +10,15 @@ This project was pretty ambitious upskilling exercise, where I tried to learn an
 
 ## Overview
 
+| Part of Stack   | Framework / Language           |
 | --------------- | ------------------------------ |
-| **Frontend** | Yew (Rust/WASM) + Tailwind CSS |
-| **Gateway** | Go |
-| **RAG Service** | Python / FastAPI |
-| **CV Service** | Python / FastAPI |
-| **Desktop** | Electron |
-| **Testing** | Playwright + testify + pytest |
-| **Containers** | Docker + Docker Compose |
+| **Frontend**    | Yew (Rust/WASM) + Tailwind CSS |
+| **Gateway**     | Go                             |
+| **RAG Service** | Python / FastAPI               |
+| **CV Service**  | Python / FastAPI               |
+| **Desktop**     | Electron                       |
+| **Testing**     | Playwright + testify + pytest  |
+| **Containers**  | Docker + Docker Compose        |
 
 ---
 
