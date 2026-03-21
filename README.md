@@ -4,6 +4,8 @@ A full-stack e-commerce platform for purchasing rocket components, built as a po
 
 Starbound allows users to browse a catalog of rocket parts, create accounts, complete purchases, query an AI assistant for product recommendations, and submit photo-verified refund requests — all from a native desktop application or the browser.
 
+This project was pretty ambitious upskilling exercise, where I tried to learn and implement a whole suite of languages, frameworks and paradigms that I hadn't used before (Rust, Yew, Golang, Electron, Playwright, Tesseract, Poppler and many more). Some parts don't work completely (e.g. the Desktop app made with Electron still needs the gateway and its services to be running to be functional), but overall it was a lot of fun and I learned a lot 👍
+
 ---
 
 ## Overview
@@ -196,15 +198,15 @@ dist/win-unpacked/Starbound.exe
 
 Copy the environment template and fill in your credentials:
 
-\```bash
+```bash
 cp .env.example .env
-\```
+```
 
 Then start all services:
 
-\```bash
+```bash
 docker-compose up --build
-\```
+```
 
 | URL                                      | Service     |
 | ---------------------------------------- | ----------- |
