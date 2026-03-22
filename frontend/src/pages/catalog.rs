@@ -510,11 +510,6 @@ pub fn catalog(props: &CatalogProps) -> Html {
                                         { format!("Results for \"{}\"", *search_term) }
                                     }
                                 </h1>
-                                if !*loading {
-                                    <p class="font-exo text-xs text-muted mt-1">
-                                        { format!("{} products found", (*displayed).len()) }
-                                    </p>
-                                }
                             </div>
                             <button
                                 onclick={toggle_filters}
