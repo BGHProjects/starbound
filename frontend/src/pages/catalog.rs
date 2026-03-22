@@ -41,7 +41,7 @@ const GROUPS: &[GroupOption] = &[
         label: "Guidance",
         types: &[
             ("flight_computer",   "Flight Computers"),
-            ("nav_sensors",       "Navigation Sensors"),
+            ("navigation_sensors",       "Navigation Sensors"),
             ("control_actuation", "Control Actuation"),
             ("telemetry",         "Telemetry"),
         ],
