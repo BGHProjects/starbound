@@ -6,6 +6,8 @@ Starbound allows users to browse a catalog of rocket parts, create accounts, com
 
 This project was pretty ambitious upskilling exercise, where I tried to learn and implement a whole suite of languages, frameworks and paradigms that I hadn't used before (Rust, Yew, Golang, Electron, Playwright, Tesseract, Poppler and many more). Some parts don't work completely (e.g. the Desktop app made with Electron still needs the gateway and its services to be running to be functional), but overall it was a lot of fun and I learned a lot 👍
 
+Visit the `/docs` folder to view screenshots and videos of the application's functionality.
+
 ---
 
 ## Overview
