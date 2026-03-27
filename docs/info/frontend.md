@@ -370,21 +370,3 @@ cd frontend
 trunk serve            # dev server at http://localhost:8080
 trunk build --release  # production build → frontend/dist/
 ```
-
-### Adding a new page
-
-1. Create `src/pages/your_page.rs`
-2. Add `#[function_component]`
-3. Add variant to `Route` in `src/route.rs`
-4. Add match arm to `switch` in `src/main.rs`
-5. Add module to `src/pages/mod.rs`
-6. Wrap in `<ProtectedRoute>` in switch if auth required
-
----
-
-## What is not yet implemented
-
-- `use_api`, `use_auth`, `use_cart` custom hooks
-- `button.rs`, `toast.rs`, `modal.rs`, `badge.rs` UI stubs
-- `product_grid.rs`, `attribute_table.rs` product component stubs
-- `ProtectedRoute` not yet applied in the switch function — auth redirects handled inline per page
