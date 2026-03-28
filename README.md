@@ -1,5 +1,9 @@
 # Starbound 🚀
 
+![Landing Page Screenshot](docs/screenshots/landing-page.png)
+
+[Watch the demo](docs/videos/browsing-flow.mp4)
+
 A full-stack e-commerce platform for purchasing rocket components, built as a portfolio project to demonstrate proficiency across a modern, polyglot microservices architecture.
 
 Starbound allows users to browse a catalog of rocket parts, create accounts, complete purchases, query an AI assistant for product recommendations, and submit photo-verified refund requests — all from a native desktop application or the browser.
