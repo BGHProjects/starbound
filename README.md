@@ -4,11 +4,11 @@
 
 [Watch the demo](docs/videos/browsing-flow.mp4)
 
-A full-stack e-commerce platform for purchasing rocket components, built as a portfolio project to demonstrate proficiency across a modern, polyglot microservices architecture.
+A full-stack e-commerce platform for purchasing rocket components, based on [NASA documentation for rocket parts](https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/rocket-parts/).
 
 Starbound allows users to browse a catalog of rocket parts, create accounts, complete purchases, query an AI assistant for product recommendations, and submit photo-verified refund requests — all from a native desktop application or the browser.
 
-This project was pretty ambitious upskilling exercise, where I tried to learn and implement a whole suite of languages, frameworks and paradigms that I hadn't used before (Rust, Yew, Golang, Electron, Playwright, Tesseract, Poppler and many more). Some parts don't work completely (e.g. the Desktop app made with Electron still needs the gateway and its services to be running to be functional), but overall it was a lot of fun and I learned a lot 👍
+This project was a pretty ambitious upskilling exercise, where I tried to learn and implement a whole suite of languages, frameworks and paradigms that I hadn't used before (Rust, Yew, Golang, Electron, Playwright, Tesseract, Poppler and many more). Some parts don't work completely (e.g. the Desktop app made with Electron still needs the gateway and its services to be running to be functional), but overall it was a lot of fun and I learned a lot 👍
 
 Visit the `/docs` folder to view screenshots and videos of the application's functionality. You can also [watch these videos on Youtube](https://www.youtube.com/playlist?list=PLLuGbhfG4baIkxUEc5BWHBkXKx453ysN6).
 
