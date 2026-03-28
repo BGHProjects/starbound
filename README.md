@@ -2,8 +2,6 @@
 
 ![Landing Page Screenshot](docs/screenshots/landing-page.png)
 
-[Watch the demo](docs/videos/browsing-flow.mp4)
-
 A full-stack e-commerce platform for purchasing rocket components, based on [NASA documentation for rocket parts](https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/rocket-parts/).
 
 Starbound allows users to browse a catalog of rocket parts, create accounts, complete purchases, query an AI assistant for product recommendations, and submit photo-verified refund requests — all from a native desktop application or the browser.
